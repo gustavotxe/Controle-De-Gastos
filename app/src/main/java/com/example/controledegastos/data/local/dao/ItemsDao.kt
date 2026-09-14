@@ -1,6 +1,6 @@
 package com.example.controledegastos.data.local.dao
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -11,41 +11,38 @@ import com.example.controledegastos.data.model.Items
 interface ItemsDao{
 
     @Insert
-    fun insertItem(items: Items)
+    suspend fun insertItem(items: Items)
 
     @Insert
-    fun insertAllItems(items: List<Items>)
+    suspend fun insertAllItems(items: List<Items>)
 
     @Update
-    fun updateItem(items: Items)
+    suspend fun updateItem(items: Items)
 
     @Query("Delete from Items where id = :id")
-    fun deleteItem(id:Int)
+    suspend fun deleteItem(id:Int)
 
-    @Query("Delete from Items where monthNumber = :monthNumber")
-    fun deleteItemMonth(monthNumber: String)
+    @Query("DELETE FROM Items WHERE yearMonth = :yearMonth")
+    suspend fun deleteItemMonth(yearMonth: Int)
 
-    @Query("SELECT * from Items")
-    fun getAllItems(): LiveData<List<Items>>
+    @Query("SELECT * FROM Items ORDER BY occurredAtMillis DESC, id DESC")
+    fun getAllItems(): Flow<List<Items>>
 
-    @Query("SELECT * from Items where monthNumber == :monthNumber")
-    fun getMonth(monthNumber: String): LiveData<List<Items>>
+    @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth ORDER BY occurredAtMillis DESC, id DESC")
+    fun getMonth(yearMonth: Int): Flow<List<Items>>
 
     //Filtro por entrada/saída de determinado mês
-    @Query("SELECT * from Items where monthNumber == :monthNumber and io == :flow")
-    fun getMonthFlow(monthNumber: String, flow: String): LiveData<List<Items>>
+    @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth AND io = :flow ORDER BY occurredAtMillis DESC, id DESC")
+    fun getMonthFlow(yearMonth: Int, flow: String): Flow<List<Items>>
 
-    @Query("SELECT monthNumber FROM Items")
-    fun getDateMonth(): String
+    @Query("SELECT * FROM Items WHERE io = :io ORDER BY occurredAtMillis DESC, id DESC")
+    fun getIOFiltered(io: String): Flow<List<Items>>
 
-    @Query("SELECT * from Items where io == :io")
-    fun getIOFiltered(io: String): LiveData<List<Items>>
-
-    @Query("SELECT * from Items where category == :category")
-    fun getCategory(category: String): LiveData<List<Items>>
+    @Query("SELECT * FROM Items WHERE category = :category ORDER BY occurredAtMillis DESC, id DESC")
+    fun getCategory(category: String): Flow<List<Items>>
 
     //Filtro por mês e categoria
-    @Query("SELECT * from Items where monthNumber == :monthNumber and category == :category")
-    fun getMonthCtg(monthNumber: String, category: String? = null): LiveData<List<Items>>
+    @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth AND category = :category ORDER BY occurredAtMillis DESC, id DESC")
+    fun getMonthCtg(yearMonth: Int, category: String): Flow<List<Items>>
 
 }

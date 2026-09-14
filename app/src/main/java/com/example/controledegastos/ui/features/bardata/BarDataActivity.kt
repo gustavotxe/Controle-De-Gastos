@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.Color
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.controledegastos.databinding.ActivityGratBinding
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import com.github.mikephil.charting.charts.BarChart
@@ -11,6 +14,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class BarDataActivity : AppCompatActivity() {
@@ -24,14 +28,7 @@ class BarDataActivity : AppCompatActivity() {
         binding = ActivityGratBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.backIconGratActivity.setOnClickListener { onBackPressed() }
-
-        itemsViewModel.loadAnnualChartData()
-
-        binding.barGrat.setOnLongClickListener {
-            itemsViewModel.loadAnnualChartData()
-            true
-        }
+        binding.backIconGratActivity.setOnClickListener { finish() }
 
         setupObservers()
     }
@@ -40,11 +37,13 @@ class BarDataActivity : AppCompatActivity() {
 
         val barChart: BarChart = binding.barGrat
 
-        itemsViewModel.annualChartState.observe(this@BarDataActivity) { state ->
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                itemsViewModel.annualChartState.collect { state ->
             val entries = arrayListOf(
-                BarEntry(100f, state.inflow.toFloat(), "Entrada Total"),
-                BarEntry(101.5f, state.outflow.toFloat(), "Saída Total"),
-                BarEntry(103f, state.balance.toFloat(), "SaldoTotal")
+                BarEntry(100f, state.inflowCents.toFloat() / 100, "Entrada Total"),
+                BarEntry(101.5f, state.outflowCents.toFloat() / 100, "Saída Total"),
+                BarEntry(103f, state.balanceCents.toFloat() / 100, "SaldoTotal")
             )
 
             val barDataSet = BarDataSet(entries, "Ganhos / Despesas Total (Em R$)").apply {
@@ -63,6 +62,8 @@ class BarDataActivity : AppCompatActivity() {
             binding.textTotalbalance.text = state.balanceText
             binding.textTotalinflow.text = state.inflowText
             binding.textTotaloutflow.text = state.outflowText
+                }
+            }
         }
 
         barChart.apply {

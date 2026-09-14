@@ -1,52 +1,49 @@
 package com.example.controledegastos.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.controledegastos.data.usecase.MonthTotalValue
+import com.example.controledegastos.data.model.FlowType
+import com.example.controledegastos.data.repository.ItemsDataSource
 import com.example.controledegastos.ui.model.MonthSummaryUi
+import com.example.controledegastos.ui.model.Money
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.NumberFormat
+import java.util.Calendar
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
-class MonthsViewModel @Inject constructor(
-    private val monthTotalValue: MonthTotalValue
-) : ViewModel() {
+class MonthsViewModel @Inject constructor(repository: ItemsDataSource) : ViewModel() {
+    private val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
-    private val mMonths = MutableLiveData<List<MonthSummaryUi>>()
-    val months: LiveData<List<MonthSummaryUi>> get() = mMonths
-
-    fun loadMonths(monthNames: List<String>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val values = monthNames.mapIndexed { index, month ->
-                val monthNumber = index.toString()
-                val inflow = monthTotalValue.inflow(monthNumber)
-                val outflow = monthTotalValue.totalOutflow(monthNumber)
-                val balance = monthTotalValue.totalBalance(monthNumber)
-                val totalBalancePie = monthTotalValue.totalBalancePie(monthNumber)
-                val outflowTotalPie = monthTotalValue.outflowTotalPie(monthNumber)
-
-                var inflowPie = totalBalancePie - outflowTotalPie
-                if (outflowTotalPie == 0f && inflowPie == 0f) {
-                    inflowPie = 1f
-                }
-
+    val months: StateFlow<List<MonthSummaryUi>> = repository.allItems
+        .map { transactions ->
+            val year = transactions.maxOfOrNull { it.yearMonth / 100 }?.takeIf { it > 0 } ?: currentYear
+            MONTH_NAMES.mapIndexed { index, monthName ->
+                val yearMonth = year * 100 + index + 1
+                val items = transactions.filter { it.yearMonth == yearMonth }
+                val inflow = items.filter { it.io == FlowType.INFLOW.value }.sumOf { it.amountCents }
+                val outflow = items.filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
                 MonthSummaryUi(
-                    monthIndex = index,
-                    monthName = month,
-                    inflowText = NumberFormat.getCurrencyInstance().format(inflow),
-                    outflowText = NumberFormat.getCurrencyInstance().format(outflow),
-                    balanceText = NumberFormat.getCurrencyInstance().format(balance),
-                    inflowPie = inflowPie,
-                    outflowPie = -outflowTotalPie,
-                    hasData = !(balance == 0.0 && outflow == 0.0)
+                    yearMonth = yearMonth,
+                    monthName = monthName,
+                    inflowText = Money.format(inflow),
+                    outflowText = Money.format(outflow),
+                    balanceText = Money.format(inflow + outflow),
+                    inflowPie = inflow.coerceAtLeast(0).toFloat() / 100,
+                    outflowPie = -outflow.coerceAtMost(0).toFloat() / 100,
+                    hasData = items.isNotEmpty()
                 )
             }
-            mMonths.postValue(values)
         }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private companion object {
+        val MONTH_NAMES = listOf(
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        )
     }
 }

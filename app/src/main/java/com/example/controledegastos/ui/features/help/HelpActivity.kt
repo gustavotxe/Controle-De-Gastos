@@ -13,7 +13,7 @@ class HelpActivity : AppCompatActivity() {
         binding = ActivityHelpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.backIconHelpActivity.setOnClickListener { onBackPressed() }
+        binding.backIconHelpActivity.setOnClickListener { finish() }
 
     }
 }

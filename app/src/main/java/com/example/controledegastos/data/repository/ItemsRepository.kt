@@ -1,60 +1,50 @@
 package com.example.controledegastos.data.repository
 
-import androidx.lifecycle.LiveData
 import com.example.controledegastos.data.model.Items
 import com.example.controledegastos.data.local.dao.ItemsDao
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) {
+class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) : ItemsDataSource {
 
-    val allItems: LiveData<List<Items>> = itemsDao.getAllItems()
+    override val allItems: Flow<List<Items>> = itemsDao.getAllItems()
 
-    suspend fun insertItem(item: Items) {
-        withContext(Dispatchers.IO) {
-            itemsDao.insertItem(item)
-        }
+    override suspend fun insertItem(item: Items) {
+        itemsDao.insertItem(item)
     }
 
-    suspend fun updateItem(item: Items) {
-        withContext(Dispatchers.IO) {
-            itemsDao.updateItem(item)
-        }
+    override suspend fun updateItem(item: Items) {
+        itemsDao.updateItem(item)
     }
 
-    suspend fun deleteItem(id: Int) {
-        withContext(Dispatchers.IO) {
-            itemsDao.deleteItem(id)
-        }
+    override suspend fun deleteItem(id: Int) {
+        itemsDao.deleteItem(id)
     }
 
-    suspend fun deleteItemMonth(monthNumber: String) {
-        withContext(Dispatchers.IO) {
-            itemsDao.deleteItemMonth(monthNumber)
-        }
+    override suspend fun deleteItemMonth(yearMonth: Int) {
+        itemsDao.deleteItemMonth(yearMonth)
     }
 
-    fun getMonth(monthNumber: String): LiveData<List<Items>> {
-        return itemsDao.getMonth(monthNumber)
+    override fun getMonth(yearMonth: Int): Flow<List<Items>> {
+        return itemsDao.getMonth(yearMonth)
     }
 
     //Filtro por entrada/saída de determinado mês
-    fun getMonthFlow(monthNumber: String, flow: String): LiveData<List<Items>> {
-        return itemsDao.getMonthFlow(monthNumber, flow)
+    override fun getMonthFlow(yearMonth: Int, flow: String): Flow<List<Items>> {
+        return itemsDao.getMonthFlow(yearMonth, flow)
     }
 
-    fun getIOFiltered(io: String): LiveData<List<Items>> {
+    override fun getIOFiltered(io: String): Flow<List<Items>> {
         return itemsDao.getIOFiltered(io)
     }
 
-    fun getCategory(category: String): LiveData<List<Items>> {
+    override fun getCategory(category: String): Flow<List<Items>> {
         return itemsDao.getCategory(category)
     }
 
     //Filtro por mês e categoria
-    fun getMonthCtg(monthNumber: String, category: String? = null): LiveData<List<Items>> {
-        return itemsDao.getMonthCtg(monthNumber, category)
+    override fun getMonthCtg(yearMonth: Int, category: String): Flow<List<Items>> {
+        return itemsDao.getMonthCtg(yearMonth, category)
     }
 
 }
