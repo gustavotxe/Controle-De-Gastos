@@ -2,6 +2,8 @@ package com.example.controledegastos.ui.features.months
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -21,9 +23,11 @@ import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.help.HelpActivity
+import com.example.controledegastos.ui.renderYears
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
 
 @AndroidEntryPoint
 class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
@@ -42,9 +46,25 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         binding.recyclerViewF.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewF.adapter = adapter
         setupDrawer()
+        setupYearSelector()
         observeState()
         viewModel.applyMonthFilter(yearMonth)
         binding.floatingActionButtonBack.setOnClickListener { finish() }
+    }
+
+    private fun setupYearSelector() {
+        binding.yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                binding.yearSpinner.selectedItem?.toString()?.toIntOrNull()?.let(viewModel::selectYear)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                combine(viewModel.availableYears, viewModel.selectedYear) { years, selected -> years to selected }
+                    .collect { (years, selected) -> binding.yearSpinner.renderYears(years, selected) }
+            }
+        }
     }
 
     private fun observeState() = lifecycleScope.launch {

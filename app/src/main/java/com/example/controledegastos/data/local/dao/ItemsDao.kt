@@ -28,6 +28,15 @@ interface ItemsDao{
     @Query("SELECT * FROM Items ORDER BY occurredAtMillis DESC, id DESC")
     fun getAllItems(): Flow<List<Items>>
 
+    @Query("SELECT * FROM Items WHERE yearMonth BETWEEN :yearStart AND :yearEnd ORDER BY occurredAtMillis DESC, id DESC")
+    fun getYear(yearStart: Int, yearEnd: Int): Flow<List<Items>>
+
+    @Query("SELECT * FROM Items WHERE yearMonth BETWEEN :yearStart AND :yearEnd AND io = :flow ORDER BY occurredAtMillis DESC, id DESC")
+    fun getYearFlow(yearStart: Int, yearEnd: Int, flow: String): Flow<List<Items>>
+
+    @Query("SELECT * FROM Items WHERE yearMonth BETWEEN :yearStart AND :yearEnd AND category = :category ORDER BY occurredAtMillis DESC, id DESC")
+    fun getYearCategory(yearStart: Int, yearEnd: Int, category: String): Flow<List<Items>>
+
     @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth ORDER BY occurredAtMillis DESC, id DESC")
     fun getMonth(yearMonth: Int): Flow<List<Items>>
 

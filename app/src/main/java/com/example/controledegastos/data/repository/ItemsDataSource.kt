@@ -9,6 +9,9 @@ interface ItemsDataSource {
     suspend fun updateItem(item: Items)
     suspend fun deleteItem(id: Int)
     suspend fun deleteItemMonth(yearMonth: Int)
+    fun getYear(year: Int): Flow<List<Items>>
+    fun getYearFlow(year: Int, flow: String): Flow<List<Items>>
+    fun getYearCategory(year: Int, category: String): Flow<List<Items>>
     fun getMonth(yearMonth: Int): Flow<List<Items>>
     fun getMonthFlow(yearMonth: Int, flow: String): Flow<List<Items>>
     fun getIOFiltered(io: String): Flow<List<Items>>

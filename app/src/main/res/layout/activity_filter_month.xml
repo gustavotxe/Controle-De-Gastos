@@ -43,6 +43,15 @@
                     tools:layout_editor_absoluteX="160dp"
                     tools:layout_editor_absoluteY="15dp" />
 
+                <Spinner
+                    android:id="@+id/yearSpinner"
+                    android:layout_width="100dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:backgroundTint="@color/white"
+                    android:dropDownWidth="150dp"
+                    android:popupBackground="@color/chartBlue" />
+
 
             </androidx.appcompat.widget.Toolbar>
 
@@ -154,6 +163,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="Voltar"
             app:tint="@color/white"
             app:backgroundTint="#22328C"
             app:layout_constraintBottom_toBottomOf="parent"

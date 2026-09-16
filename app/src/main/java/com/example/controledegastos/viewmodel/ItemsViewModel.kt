@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.controledegastos.data.model.FlowType
 import com.example.controledegastos.data.model.Items
 import com.example.controledegastos.data.repository.ItemsDataSource
+import com.example.controledegastos.data.repository.YearSelectionRepository
 import com.example.controledegastos.ui.model.Money
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +42,8 @@ data class AnnualChartUiState(
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class ItemsViewModel @Inject constructor(
-    private val itemsRepository: ItemsDataSource
+    private val itemsRepository: ItemsDataSource,
+    private val yearSelectionRepository: YearSelectionRepository
 ) : ViewModel() {
 
     private sealed interface MainFilter {
@@ -58,17 +61,23 @@ class ItemsViewModel @Inject constructor(
     private val mainFilter = MutableStateFlow<MainFilter>(MainFilter.All)
     private val monthFilter = MutableStateFlow<MonthFilter?>(null)
 
+    val availableYears = yearSelectionRepository.availableYears
+    val selectedYear = yearSelectionRepository.selectedYear
+
     val mainUiState: StateFlow<TransactionsUiState> = mainFilter
-        .flatMapLatest { filter -> filter.toItemsFlow() }
+        .combine(selectedYear) { filter, year -> filter to year }
+        .flatMapLatest { (filter, year) -> filter.toItemsFlow(year) }
         .map { it.toUiState() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
 
     val monthUiState: StateFlow<TransactionsUiState> = monthFilter
+        .combine(selectedYear) { filter, year -> filter?.copy(yearMonth = year * 100 + (filter.yearMonth % 100)) }
         .flatMapLatest { filter -> filter?.toItemsFlow() ?: flowOf(emptyList()) }
         .map { it.toUiState() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
 
-    val annualChartState: StateFlow<AnnualChartUiState> = itemsRepository.allItems
+    val annualChartState: StateFlow<AnnualChartUiState> = selectedYear
+        .flatMapLatest { year -> itemsRepository.getYear(year) }
         .map { items ->
             val inflow = items.filter { it.io == FlowType.INFLOW.value }.sumOf { it.amountCents }
             val outflow = items.filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
@@ -79,6 +88,7 @@ class ItemsViewModel @Inject constructor(
     fun applyMainAllFilter() { mainFilter.value = MainFilter.All }
     fun applyMainFlowFilter(flow: String) { mainFilter.value = MainFilter.Flow(flow) }
     fun applyMainCategoryFilter(category: String) { mainFilter.value = MainFilter.Category(category) }
+    fun selectYear(year: Int) = yearSelectionRepository.selectYear(year)
 
     fun applyMonthFilter(yearMonth: Int, category: String? = null, flow: String? = null) {
         monthFilter.value = MonthFilter(yearMonth, category, flow)
@@ -87,12 +97,15 @@ class ItemsViewModel @Inject constructor(
     fun insertItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.insertItem(item) }
     fun updateItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.updateItem(item) }
     fun deleteItem(id: Int) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItem(id) }
-    fun deleteItemMonth(yearMonth: Int) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItemMonth(yearMonth) }
+    fun deleteItemMonth(yearMonth: Int) {
+        val selectedYearMonth = selectedYear.value * 100 + (yearMonth % 100)
+        viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItemMonth(selectedYearMonth) }
+    }
 
-    private fun MainFilter.toItemsFlow(): Flow<List<Items>> = when (this) {
-        MainFilter.All -> itemsRepository.allItems
-        is MainFilter.Flow -> itemsRepository.getIOFiltered(value)
-        is MainFilter.Category -> itemsRepository.getCategory(value)
+    private fun MainFilter.toItemsFlow(year: Int): Flow<List<Items>> = when (this) {
+        MainFilter.All -> itemsRepository.getYear(year)
+        is MainFilter.Flow -> itemsRepository.getYearFlow(year, value)
+        is MainFilter.Category -> itemsRepository.getYearCategory(year, value)
     }
 
     private fun MonthFilter.toItemsFlow(): Flow<List<Items>> = when {

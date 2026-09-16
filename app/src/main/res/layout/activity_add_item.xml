@@ -69,6 +69,7 @@
           android:layout_gravity="center"
           android:layout_marginTop="3dp"
           android:text=" "
+          android:contentDescription="Entrada/Saída"
           android:textStyle="bold"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"

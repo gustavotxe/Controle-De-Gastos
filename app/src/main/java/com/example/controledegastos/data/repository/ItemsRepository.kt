@@ -25,6 +25,15 @@ class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) : Item
         itemsDao.deleteItemMonth(yearMonth)
     }
 
+    override fun getYear(year: Int): Flow<List<Items>> =
+        itemsDao.getYear(year * 100 + 1, year * 100 + 12)
+
+    override fun getYearFlow(year: Int, flow: String): Flow<List<Items>> =
+        itemsDao.getYearFlow(year * 100 + 1, year * 100 + 12, flow)
+
+    override fun getYearCategory(year: Int, category: String): Flow<List<Items>> =
+        itemsDao.getYearCategory(year * 100 + 1, year * 100 + 12, category)
+
     override fun getMonth(yearMonth: Int): Flow<List<Items>> {
         return itemsDao.getMonth(yearMonth)
     }
