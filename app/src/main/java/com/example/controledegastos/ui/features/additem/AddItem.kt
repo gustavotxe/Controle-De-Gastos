@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.R
 import com.example.controledegastos.data.model.CategoryType
 import com.example.controledegastos.data.model.FlowType
 import com.example.controledegastos.data.model.Items
@@ -40,10 +41,15 @@ class AddItem : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        binding.spinnerIO.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, FlowType.entries.map { it.value })
-        binding.spinnerPayment.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, PAYMENT_METHODS)
-        binding.spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, CategoryType.valuesList)
+        binding.spinnerIO.adapter = fieldAdapter(FlowType.entries.map { it.value })
+        binding.spinnerPayment.adapter = fieldAdapter(PAYMENT_METHODS)
+        binding.spinnerCategory.adapter = fieldAdapter(CategoryType.valuesList)
     }
+
+    private fun fieldAdapter(values: List<String>) =
+        ArrayAdapter(this, R.layout.spinner_field_item, values).apply {
+            setDropDownViewResource(R.layout.spinner_dropdown_item)
+        }
 
     private fun restoreEditingItem(savedState: Bundle?) {
         editingId = savedState?.getInt(STATE_ID)?.takeIf { it > 0 } ?: intent.getIntExtra(EXTRA_ID, -1).takeIf { it > 0 }
@@ -52,14 +58,15 @@ class AddItem : AppCompatActivity() {
         if (dateSelected) calendar.timeInMillis = dateMillis
         binding.DescId.setText(savedState?.getString(STATE_DESCRIPTION) ?: intent.getStringExtra(EXTRA_DESCRIPTION).orEmpty())
         binding.ObsId.setText(savedState?.getString(STATE_OBSERVATION) ?: intent.getStringExtra(EXTRA_OBSERVATION).orEmpty())
-        binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: editingAmount())
+        binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: if (editingId != null) editingAmount() else "")
         select(binding.spinnerIO, savedState?.getString(STATE_FLOW) ?: intent.getStringExtra(EXTRA_FLOW).orEmpty())
         select(binding.spinnerPayment, savedState?.getString(STATE_PAYMENT) ?: intent.getStringExtra(EXTRA_PAYMENT).orEmpty())
         select(binding.spinnerCategory, savedState?.getString(STATE_CATEGORY) ?: intent.getStringExtra(EXTRA_CATEGORY).orEmpty())
         if (dateSelected) updateDate()
         if (editingId == null) return
 
-        binding.saveNote.text = "EDITAR"
+        binding.toolbarTitle.setText(R.string.edit_transaction)
+        binding.saveNote.setText(R.string.save_changes)
         binding.buttonCancel.visibility = View.VISIBLE
     }
 

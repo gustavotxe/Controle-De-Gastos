@@ -1,19 +1,25 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
-    android:background="@drawable/headerback"
-    android:gravity="bottom"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
-
+    android:padding="24dp"
+    android:background="@color/brand">
     <ImageView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/iconappmenu"></ImageView>
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/analyticsplash"
+        app:tint="@color/white"
+        android:importantForAccessibility="no" />
 
+    <TextView
+        style="@style/Ui.Value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/brand_name"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 </LinearLayout>
-
-

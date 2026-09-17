@@ -1,17 +1,16 @@
 package com.example.controledegastos.ui.features.home
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,12 +24,11 @@ import com.example.controledegastos.databinding.ActivityMainBinding
 import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.renderYears
+import com.example.controledegastos.ui.configureListMotion
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.bardata.BarDataActivity
 import com.example.controledegastos.ui.features.help.HelpActivity
 import com.example.controledegastos.ui.features.months.MonthsActivity
-import com.example.controledegastos.ui.model.Money
-import com.example.controledegastos.ui.model.TransactionDate
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -51,6 +49,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         adapter = MyAdapter(this)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+        binding.recyclerView.configureListMotion()
         setupDrawer()
         setupYearSelector()
         observeState()
@@ -61,11 +60,11 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.mainUiState.collect { state ->
                 adapter.setItems(state.items)
-                binding.toolbarBalance.text = state.balance
-                binding.toolbarBalance.setTextColor(
-                    if (state.balance.startsWith("-")) Color.parseColor("#FFEB3B") else Color.parseColor("#1ff024")
-                )
-                binding.toolbarBalance.setTypeface(null, Typeface.BOLD)
+                binding.totalBalanceHome.text = buildString {
+                    append("Saldo total: ")
+                    append(state.balance)
+                }
+                binding.emptyState.isVisible = state.items.isEmpty()
             }
         }
     }
@@ -90,6 +89,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         toggle = ActionBarDrawerToggle(this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+        toggle.drawerArrowDrawable.color = getColor(R.color.white)
         binding.navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> viewModel.applyMainAllFilter()
@@ -112,12 +112,15 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
                 else -> return@setNavigationItemSelectedListener false
             }
             drawerLayout.closeDrawer(GravityCompat.START)
+            if (item.itemId != R.id.nav_calendar && item.itemId != R.id.nav_resumo &&
+                item.itemId != R.id.nav_help && item.itemId != R.id.nav_exit) {
+            }
             true
         }
     }
 
     override fun onClickDelete(id: Int) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Deletar Item")
             .setMessage("Deseja deletar este item?")
             .setPositiveButton("Sim") { _, _ -> viewModel.deleteItem(id) }

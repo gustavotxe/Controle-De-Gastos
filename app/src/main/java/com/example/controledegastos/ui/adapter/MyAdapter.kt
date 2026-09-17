@@ -1,9 +1,11 @@
 package com.example.controledegastos.ui.adapter
 
-import android.graphics.Color
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.R
@@ -12,9 +14,8 @@ import com.example.controledegastos.databinding.AdapterlayoutBinding
 import com.example.controledegastos.ui.model.Money
 import com.example.controledegastos.ui.model.TransactionDate
 
-class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<MyAdapter.Mvh>() {
-
-    private var itemsList: List<Items> = emptyList()
+class MyAdapter(private val listenerInterface: OnClickInterface) :
+    ListAdapter<Items, MyAdapter.Mvh>(DIFF) {
 
     class Mvh(binding: AdapterlayoutBinding) : RecyclerView.ViewHolder(binding.root) {
         val desc = binding.DescTv
@@ -39,10 +40,11 @@ class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: Mvh, position: Int) {
 
-        val model = itemsList[position]
+        val model = getItem(position)
 
         holder.desc.text = model.description
         holder.obs.text = model.observation
+        holder.obs.isVisible = model.observation.isNotBlank()
         holder.iOtext.text = model.io
         holder.payMethod.text = model.paymentMethod
         holder.data.text = TransactionDate.format(model.occurredAtMillis)
@@ -50,31 +52,34 @@ class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<
         holder.ctg.text = model.category
 
         holder.iOtext.setTextColor(
-            if (model.io == "Entrada") Color.parseColor("#1f4011")
-            else Color.parseColor("#960802")
+            ContextCompat.getColor(holder.itemView.context,
+                if (model.io == "Entrada") R.color.chartGreen else R.color.chartRed)
         )
 
         val value = Money.format(model.amountCents)
         holder.value.text = value
 
         holder.value.setTextColor(
-            if (model.amountCents < 0) Color.parseColor("#ed1313")
-            else Color.parseColor("#1ff024")
+            ContextCompat.getColor(holder.itemView.context,
+                if (model.amountCents < 0) R.color.chartRed else R.color.chartGreen)
         )
 
         holder.editIcon.setOnClickListener { listenerInterface.onClickEdit(model, value) }
         holder.delete.setOnClickListener { listenerInterface.onClickDelete(model.id) }
+        holder.editIcon.contentDescription = holder.itemView.context.getString(R.string.edit_item, model.description)
+        holder.delete.contentDescription = holder.itemView.context.getString(R.string.delete_item, model.description)
 
-    }
-
-    override fun getItemCount(): Int {
-        return itemsList.size
     }
 
     fun setItems(newItems: List<Items>) {
-        val diffResult = DiffUtil.calculateDiff(ItemDiffCallback(itemsList, newItems))
-        itemsList = newItems
-        diffResult.dispatchUpdatesTo(this)
+        submitList(newItems)
+    }
+
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<Items>() {
+            override fun areItemsTheSame(oldItem: Items, newItem: Items) = oldItem.id == newItem.id
+            override fun areContentsTheSame(oldItem: Items, newItem: Items) = oldItem == newItem
+        }
     }
 
 }

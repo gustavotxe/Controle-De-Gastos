@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#18233D</color>
+    <color name="white">#FFFFFF</color>
+    <color name="brand">#22328C</color>
+    <color name="brand_light">#3042A8</color>
+    <color name="accent">#0095FE</color>
+    <color name="page">#F4F6FB</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="ink">#18233D</color>
+    <color name="muted">#606D85</color>
+    <color name="outline">#DFE5F0</color>
+    <color name="tint">#EAF0FF</color>
     <color name="chartGreen">#1C7E20</color>
     <color name="chartBlue">#2A398E</color>
     <color name="chartRed">#A31F1F</color>
+    <color name="on_brand_muted">#DDE5FF</color>
 </resources>

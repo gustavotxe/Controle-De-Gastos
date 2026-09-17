@@ -6,9 +6,10 @@ import android.view.View
 import android.widget.AdapterView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.help.HelpActivity
 import com.example.controledegastos.ui.renderYears
+import com.example.controledegastos.ui.configureListMotion
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,6 +47,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         adapter = MyAdapter(this)
         binding.recyclerViewF.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewF.adapter = adapter
+        binding.recyclerViewF.configureListMotion()
         setupDrawer()
         setupYearSelector()
         observeState()
@@ -71,6 +74,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.monthUiState.collect { state ->
                 adapter.setItems(state.items)
+                binding.emptyState.isVisible = state.items.isEmpty()
                 binding.totalInflow.text = state.inflow
                 binding.totalOutflow.text = state.outflow
                 binding.totalBalance.text = state.balance
@@ -83,6 +87,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         val toggle = ActionBarDrawerToggle(this, drawer, binding.toolbarF, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
         toggle.syncState()
+        toggle.drawerArrowDrawable.color = getColor(R.color.white)
         binding.navViewFilter.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_homeF -> viewModel.applyMonthFilter(yearMonth)
@@ -104,6 +109,9 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
                 else -> return@setNavigationItemSelectedListener false
             }
             drawer.closeDrawer(GravityCompat.START)
+            if (item.itemId != R.id.nav_deleteF && item.itemId != R.id.nav_helpF && item.itemId != R.id.nav_exitF) {
+                binding.sectionTitle.text = item.title
+            }
             true
         }
     }
@@ -111,7 +119,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
     private fun category(value: String) { viewModel.applyMonthFilter(yearMonth, category = value) }
 
     private fun confirmDeleteMonth() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Deletar lançamentos")
             .setMessage("Deseja deletar todos os lançamentos deste mês?")
             .setPositiveButton("Sim") { _, _ -> viewModel.deleteItemMonth(yearMonth); finish() }
@@ -120,7 +128,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
     }
 
     override fun onClickDelete(id: Int) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Deletar Item")
             .setMessage("Deseja deletar este item?")
             .setPositiveButton("Sim") { _, _ -> viewModel.deleteItem(id) }

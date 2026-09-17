@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.controledegastos.databinding.ActivityAllMonthsBinding
 import com.example.controledegastos.ui.adapter.MyAdapterMonth
 import com.example.controledegastos.ui.renderYears
+import com.example.controledegastos.ui.configureListMotion
 import com.example.controledegastos.viewmodel.MonthsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class MonthsActivity : AppCompatActivity() {
 
         binding.recyclerViewMonths.layoutManager = LinearLayoutManager(this@MonthsActivity)
         binding.recyclerViewMonths.adapter = adapter
+        binding.recyclerViewMonths.configureListMotion()
 
         setupYearSelector()
 

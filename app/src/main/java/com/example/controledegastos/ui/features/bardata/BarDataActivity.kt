@@ -2,9 +2,11 @@ package com.example.controledegastos.ui.features.bardata
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.graphics.Color
 import android.view.View
 import android.widget.AdapterView
+import com.example.controledegastos.R
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.formatter.ValueFormatter
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.controledegastos.databinding.ActivityGratBinding
 import com.example.controledegastos.ui.renderYears
 import com.example.controledegastos.viewmodel.ItemsViewModel
-import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -35,6 +36,7 @@ class BarDataActivity : AppCompatActivity() {
         binding.backIconGratActivity.setOnClickListener { finish() }
 
         setupYearSelector()
+        setupChart()
         setupObservers()
     }
 
@@ -53,43 +55,59 @@ class BarDataActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupObservers() {
-
-        val barChart: BarChart = binding.barGrat
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                itemsViewModel.annualChartState.collect { state ->
-            val entries = arrayListOf(
-                BarEntry(100f, state.inflowCents.toFloat() / 100, "Entrada Total"),
-                BarEntry(101.5f, state.outflowCents.toFloat() / 100, "Saída Total"),
-                BarEntry(103f, state.balanceCents.toFloat() / 100, "SaldoTotal")
-            )
-
-            val barDataSet = BarDataSet(entries, "Ganhos / Despesas Total (Em R$)").apply {
-                setColors(
-                    Color.parseColor("#4CAF50"),
-                    Color.parseColor("#DF4646"),
-                    Color.parseColor("#3042A8")
+    private fun setupObservers() = lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            itemsViewModel.annualChartState.collect { state ->
+                val entries = arrayListOf(
+                    BarEntry(0f, state.inflowCents.toFloat() / 100),
+                    BarEntry(1f, state.outflowCents.toFloat() / 100),
+                    BarEntry(2f, state.balanceCents.toFloat() / 100)
                 )
-                valueTextSize = 1f
-                valueTextColor = Color.BLACK
-            }
-
-            barChart.data = BarData(barDataSet)
-            barChart.invalidate()
-
-            binding.textTotalbalance.text = state.balanceText
-            binding.textTotalinflow.text = state.inflowText
-            binding.textTotaloutflow.text = state.outflowText
+                val dataSet = BarDataSet(entries, "").apply {
+                    colors = listOf(
+                        this@BarDataActivity.getColor(R.color.chartGreen),
+                        this@BarDataActivity.getColor(R.color.chartRed),
+                        this@BarDataActivity.getColor(R.color.brand)
+                    )
+                    setDrawValues(false)
                 }
+                binding.barGrat.data = BarData(dataSet).apply { barWidth = 0.55f }
+                binding.barGrat.invalidate()
+                binding.textTotalbalance.text = state.balanceText
+                binding.textTotalinflow.text = state.inflowText
+                binding.textTotaloutflow.text = state.outflowText
             }
         }
+    }
 
-        barChart.apply {
+    private fun setupChart() {
+        binding.barGrat.apply {
             setFitBars(true)
             description.isEnabled = false
-            animateY(1000)
+            legend.isEnabled = false
+            axisRight.isEnabled = false
+            axisLeft.textColor = getColor(R.color.muted)
+            axisLeft.gridColor = getColor(R.color.outline)
+            axisLeft.setDrawAxisLine(false)
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                textColor = getColor(R.color.muted)
+                granularity = 1f
+                setLabelCount(3, false)
+                valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String = when {
+                        kotlin.math.abs(value) < 0.1f -> getString(R.string.inflow)
+                        kotlin.math.abs(value - 1f) < 0.1f -> getString(R.string.outflow)
+                        kotlin.math.abs(value - 2f) < 0.1f -> getString(R.string.balance)
+                        else -> ""
+                    }
+                }
+            }
+            setScaleEnabled(false)
+            setDrawGridBackground(false)
+            setExtraOffsets(8f, 16f, 8f, 8f)
             invalidate()
         }
     }

@@ -13,7 +13,7 @@
 
         <item
             android:id="@+id/nav_calendar"
-            android:title="Total de Lançamentos Mensais"
+            android:title="@string/months_title"
             android:icon="@drawable/baseline_calendar_month"
             android:padding="10dp" />
 
@@ -21,7 +21,7 @@
             android:id="@+id/nav_resumo"
             android:icon="@drawable/baseline_table_view_24"
             android:padding="10dp"
-            android:title="Total de Lançamentos" />
+            android:title="@string/annual_title" />
 
     </group>
 

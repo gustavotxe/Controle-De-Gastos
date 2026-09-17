@@ -7,6 +7,7 @@ import com.example.controledegastos.viewmodel.ItemsViewModel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.junit.Assert.assertEquals
 
 class ItemsViewModelTest {
     @Test
@@ -15,10 +16,10 @@ class ItemsViewModelTest {
         val viewModel = ItemsViewModel(repository, YearSelectionRepository(repository))
         val item = Items(0, "Salário", "", "Entrada", "Pagamento à vista", 12_345, 1_735_689_600_000, 202501, "Salário")
 
-        viewModel.insertItem(item)
-        testScheduler.advanceUntilIdle()
+        // The ViewModel launches on Dispatchers.IO, outside the test scheduler.
+        viewModel.insertItem(item).join()
 
-        assert(repository.inserted == item)
+        assertEquals(item, repository.inserted)
     }
 
     private class FakeItemsDataSource : ItemsDataSource {
