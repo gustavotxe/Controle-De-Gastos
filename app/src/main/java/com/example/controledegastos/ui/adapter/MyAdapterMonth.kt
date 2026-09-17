@@ -45,8 +45,8 @@ class MyAdapterMonth(
         val pieDataSet = if (monthSummary.hasData) {
             PieDataSet(
                 arrayListOf(
-                    PieEntry(monthSummary.inflowPie, "Entrada"),
-                    PieEntry(monthSummary.outflowPie, "Saída")
+                    PieEntry(monthSummary.inflowPie, context.getString(R.string.inflow)),
+                    PieEntry(monthSummary.outflowPie, context.getString(R.string.outflow))
                 ),
                 ""
             ).apply {
@@ -65,10 +65,18 @@ class MyAdapterMonth(
             data = PieData(pieDataSet)
             description.isEnabled = false
             isDrawHoleEnabled = true
-            holeRadius = 76f
-            transparentCircleRadius = 80f
-            setDrawEntryLabels(false)
-            setTouchEnabled(false)
+            holeRadius = 50f
+            transparentCircleRadius = 55f
+            setDrawEntryLabels(monthSummary.hasData)
+            setEntryLabelColor(Color.WHITE)
+            setEntryLabelTextSize(12f)
+            setTouchEnabled(monthSummary.hasData)
+            isRotationEnabled = monthSummary.hasData
+            isHighlightPerTapEnabled = monthSummary.hasData
+            // Rotate while dragging, without an inertial animation during list scrolling.
+            isDragDecelerationEnabled = false
+            rotationAngle = 270f
+            highlightValues(null)
             centerText = if (monthSummary.hasData) "" else "Sem dados"
             setCenterTextSize(11f)
             setCenterTextColor(Color.parseColor("#6B7280"))
@@ -77,6 +85,7 @@ class MyAdapterMonth(
         }
 
         holder.itemView.setOnClickListener { onMonthClicked(monthSummary) }
+        holder.details.setOnClickListener { onMonthClicked(monthSummary) }
     }
 
     fun setItems(newItems: List<MonthSummaryUi>) {

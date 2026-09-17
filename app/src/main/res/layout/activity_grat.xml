@@ -40,121 +40,35 @@
             android:paddingStart="12dp"
             android:paddingEnd="0dp" />
     </androidx.appcompat.widget.Toolbar>
-    <ScrollView
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/annualCard"
+        style="@style/Ui.Card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:clipToPadding="false">
-        <LinearLayout
+        android:layout_margin="12dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-            <TextView
-                style="@style/Ui.Body"
-                android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp">
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barGrat"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="@string/annual_title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/annualTotals"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+            <include
+                android:id="@+id/annualTotals"
+                layout="@layout/annual_totals"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/annual_hint"
-                android:layout_marginBottom="24dp" />
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                style="@style/Ui.Card">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:padding="8dp">
-
-                        <com.github.mikephil.charting.charts.BarChart
-                            android:id="@+id/barGrat"
-                            android:layout_width="match_parent"
-                            android:layout_height="300dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="16dp"
-                            android:contentDescription="@string/annual_title"
-                            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </LinearLayout>
-
-
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:orientation="vertical"
-                        android:padding="18dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent">
-
-                        <TextView
-                            style="@style/Ui.Caption"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/balance" />
-
-                        <TextView
-                            android:id="@+id/textTotalbalance"
-                            style="@style/Ui.Value"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="@string/money_zero"
-                            android:textColor="@color/brand"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            style="@style/Ui.Caption"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/inflow" />
-
-                        <TextView
-                            android:id="@+id/textTotalinflow"
-                            style="@style/Ui.Value"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="@string/money_zero"
-                            android:textColor="@color/chartGreen"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            style="@style/Ui.Caption"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/outflow" />
-
-                        <TextView
-                            android:id="@+id/textTotaloutflow"
-                            style="@style/Ui.Value"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/money_zero"
-                            android:textColor="@color/chartRed"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-    </ScrollView>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

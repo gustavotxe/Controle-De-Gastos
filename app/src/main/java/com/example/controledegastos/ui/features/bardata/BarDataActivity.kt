@@ -73,9 +73,9 @@ class BarDataActivity : AppCompatActivity() {
                 }
                 binding.barGrat.data = BarData(dataSet).apply { barWidth = 0.55f }
                 binding.barGrat.invalidate()
-                binding.textTotalbalance.text = state.balanceText
-                binding.textTotalinflow.text = state.inflowText
-                binding.textTotaloutflow.text = state.outflowText
+                binding.annualTotals.textTotalbalance.text = state.balanceText
+                binding.annualTotals.textTotalinflow.text = state.inflowText
+                binding.annualTotals.textTotaloutflow.text = state.outflowText
             }
         }
     }

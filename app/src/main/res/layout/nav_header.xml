@@ -4,22 +4,47 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/brand">
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/analyticsplash"
-        app:tint="@color/white"
-        android:importantForAccessibility="no" />
-
-    <TextView
-        style="@style/Ui.Value"
+    android:orientation="vertical">
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/brand_name"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:background="@color/brand">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/analyticsplash"
+                app:tint="@color/white"
+                android:importantForAccessibility="no" />
+            <TextView
+                style="@style/Ui.Value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/brand_name"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/closeDrawerButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="12dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/navigation_drawer_close"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@color/white" />
+    </FrameLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:scaleType="fitXY"
+        android:importantForAccessibility="no"
+        app:srcCompat="@drawable/nav_header_wave" />
 </LinearLayout>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<com.example.controledegastos.ui.TapCloseDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
@@ -123,4 +123,4 @@
         app:itemTextColor="@color/ink"
         app:itemVerticalPadding="6dp"
         app:itemMaxLines="2" />
-</androidx.drawerlayout.widget.DrawerLayout>
+</com.example.controledegastos.ui.TapCloseDrawerLayout>

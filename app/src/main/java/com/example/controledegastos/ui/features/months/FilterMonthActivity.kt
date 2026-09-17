@@ -3,7 +3,6 @@ package com.example.controledegastos.ui.features.months
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,12 +23,12 @@ import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.help.HelpActivity
-import com.example.controledegastos.ui.renderYears
 import com.example.controledegastos.ui.configureListMotion
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.combine
+import java.text.DateFormatSymbols
+import java.util.Locale
 
 @AndroidEntryPoint
 class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
@@ -41,7 +40,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (yearMonth == 0) { finish(); return }
+        if (yearMonth / 100 <= 0 || yearMonth % 100 !in 1..12) { finish(); return }
         binding = ActivityFilterMonthBinding.inflate(layoutInflater)
         setContentView(binding.root)
         adapter = MyAdapter(this)
@@ -49,25 +48,18 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         binding.recyclerViewF.adapter = adapter
         binding.recyclerViewF.configureListMotion()
         setupDrawer()
-        setupYearSelector()
-        observeState()
+        setupMonthHeader()
         viewModel.applyMonthFilter(yearMonth)
+        observeState()
         binding.floatingActionButtonBack.setOnClickListener { finish() }
     }
 
-    private fun setupYearSelector() {
-        binding.yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                binding.yearSpinner.selectedItem?.toString()?.toIntOrNull()?.let(viewModel::selectYear)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(viewModel.availableYears, viewModel.selectedYear) { years, selected -> years to selected }
-                    .collect { (years, selected) -> binding.yearSpinner.renderYears(years, selected) }
-            }
-        }
+    private fun setupMonthHeader() {
+        val year = yearMonth / 100
+        val monthName = DateFormatSymbols(Locale("pt", "BR")).months[yearMonth % 100 - 1]
+        binding.monthTitle.text = getString(R.string.monthly_transactions_title, monthName, year.toString())
+        // Reapply the period from navigation, including after process recreation.
+        viewModel.selectYear(year)
     }
 
     private fun observeState() = lifecycleScope.launch {
@@ -88,6 +80,8 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         drawer.addDrawerListener(toggle)
         toggle.syncState()
         toggle.drawerArrowDrawable.color = getColor(R.color.white)
+        binding.navViewFilter.getHeaderView(0).findViewById<View>(R.id.closeDrawerButton)
+            .setOnClickListener { drawer.closeDrawer(GravityCompat.START) }
         binding.navViewFilter.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_homeF -> viewModel.applyMonthFilter(yearMonth)
@@ -109,9 +103,6 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
                 else -> return@setNavigationItemSelectedListener false
             }
             drawer.closeDrawer(GravityCompat.START)
-            if (item.itemId != R.id.nav_deleteF && item.itemId != R.id.nav_helpF && item.itemId != R.id.nav_exitF) {
-                binding.sectionTitle.text = item.title
-            }
             true
         }
     }

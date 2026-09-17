@@ -90,6 +90,8 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         toggle.drawerArrowDrawable.color = getColor(R.color.white)
+        binding.navView.getHeaderView(0).findViewById<View>(R.id.closeDrawerButton)
+            .setOnClickListener { drawerLayout.closeDrawer(GravityCompat.START) }
         binding.navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> viewModel.applyMainAllFilter()
