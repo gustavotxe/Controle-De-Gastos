@@ -90,9 +90,15 @@
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
                 android:digits="0123456789,."
-                android:maxLength="14"
+                android:maxLength="64"
                 android:textSize="28sp"
                 android:imeOptions="actionNext" />
+            <TextView
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/amount_format_hint" />
             <TextView
                 android:id="@+id/textViewPay"
                 style="@style/Ui.Label"

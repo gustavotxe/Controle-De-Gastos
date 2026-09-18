@@ -40,7 +40,7 @@
     <string name="money_zero">R$ 0,00</string>
     <string name="help">Ajuda</string>
     <string name="help_add_question">Como adicionar um lançamento?</string>
-    <string name="help_add_answer">Na tela inicial, toque em “Novo lançamento”. Escolha Entrada ou Saída, preencha a descrição, o valor, a forma de pagamento, a categoria e a data. A observação é opcional. Informe o valor sem sinal negativo: o tipo escolhido define se ele entra ou sai do saldo. Toque em “Salvar lançamento”. A data determina em qual mês e ano o registro aparece.</string>
+    <string name="help_add_answer">Na tela inicial, toque em “Novo lançamento”. Escolha Entrada ou Saída, preencha a descrição, o valor, a forma de pagamento, a categoria e a data. A observação é opcional. Use o formato brasileiro: 7.000 ou 7.000,00 representam sete mil reais; 7,50 representa sete reais e cinquenta centavos. Use até duas casas após a vírgula. Informe o valor sem sinal negativo: o tipo escolhido define se ele entra ou sai do saldo. Toque em “Salvar lançamento”. A data determina em qual mês e ano o registro aparece.</string>
     <string name="help_edit_question">Como editar ou excluir?</string>
     <string name="help_edit_answer">Na lista de lançamentos, toque no lápis do cartão, altere os campos e salve. Se mudar a data, o registro poderá aparecer em outro mês ou ano. Para excluir apenas aquele lançamento, toque na lixeira e confirme.</string>
     <string name="help_filter_question">Como encontrar um lançamento?</string>

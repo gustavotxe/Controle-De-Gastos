@@ -30,6 +30,7 @@ import androidx.test.espresso.contrib.DrawerMatchers
 import androidx.test.espresso.contrib.NavigationViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.hasErrorText
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -57,6 +58,26 @@ class UiRedesignTest {
 
     @Before
     fun inject() = hiltRule.inject()
+
+    @Test
+    fun amountFieldAcceptsBrazilianGroupingAndRejectsInvalidDecimals() {
+        ActivityScenario.launch(AddItem::class.java).use { scenario ->
+            onView(withId(R.id.editValue)).perform(scrollTo(), replaceText("7.000"), closeSoftKeyboard())
+                .check(matches(withText("7.000")))
+            onView(withId(R.id.editValue)).perform(replaceText("7.000,00"), closeSoftKeyboard())
+                .check(matches(withText("7.000,00")))
+            scenario.recreate()
+            onView(withId(R.id.editValue)).perform(scrollTo()).check(matches(withText("7.000,00")))
+            scenario.onActivity { activity ->
+                val text = activity.findViewById<android.widget.EditText>(R.id.editValue).text.toString()
+                assertEquals(700_000L, com.example.controledegastos.ui.model.Money.parseToCents(text))
+            }
+            onView(withId(R.id.editValue)).perform(replaceText("7,000"), closeSoftKeyboard())
+            scenario.onActivity { it.findViewById<View>(R.id.saveNote).performClick() }
+            val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+            onView(withId(R.id.editValue)).check(matches(hasErrorText(context.getString(R.string.amount_invalid_brl))))
+        }
+    }
 
     @Test
     fun homeFilterBarAndDrawerShareSelectionAfterRecreation() {

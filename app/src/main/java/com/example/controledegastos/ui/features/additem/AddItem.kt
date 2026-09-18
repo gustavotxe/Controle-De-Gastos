@@ -71,7 +71,7 @@ class AddItem : AppCompatActivity() {
     }
 
     private fun editingAmount(): String =
-        (intent.getLongExtra(EXTRA_AMOUNT_CENTS, 0L) / 100.0).toString().replace('.', ',')
+        Money.formatInput(intent.getLongExtra(EXTRA_AMOUNT_CENTS, 0L))
 
     private fun select(spinner: android.widget.Spinner, value: String) {
         val position = (0 until spinner.count).firstOrNull { spinner.getItemAtPosition(it) == value } ?: -1
@@ -95,7 +95,11 @@ class AddItem : AppCompatActivity() {
 
     private fun save() {
         val amount = Money.parseToCents(binding.editValue.text.toString())
-        if (amount == null || amount <= 0) return showError("Insira um valor válido.")
+        if (amount == null || amount <= 0) {
+            binding.editValue.error = getString(R.string.amount_invalid_brl)
+            binding.editValue.requestFocus()
+            return
+        }
         if (binding.textDateSelected.text == "--/--/----") return showError("Insira uma data válida.")
         val flow = binding.spinnerIO.selectedItem.toString()
         val signedAmount = if (flow == FlowType.OUTFLOW.value) -amount else amount
@@ -157,7 +161,7 @@ class AddItem : AppCompatActivity() {
             putExtra(EXTRA_OBSERVATION, item.observation)
             putExtra(EXTRA_FLOW, item.io)
             putExtra(EXTRA_PAYMENT, item.paymentMethod)
-            putExtra(EXTRA_AMOUNT_CENTS, kotlin.math.abs(item.amountCents))
+            putExtra(EXTRA_AMOUNT_CENTS, item.amountCents)
             putExtra(EXTRA_DATE, item.occurredAtMillis)
             putExtra(EXTRA_CATEGORY, item.category)
         }
