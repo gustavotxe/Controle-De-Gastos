@@ -3,10 +3,10 @@
     <string name="backup_description">Salve ou importe os lançamentos de todos os anos em um arquivo JSON.</string>
     <string name="backup_export_heading">Exportar todos os anos</string>
     <string name="backup_export_description">Crie uma cópia organizada por ano, mês e data, com todos os detalhes dos seus lançamentos.</string>
-    <string name="backup_export">Salvar JSON</string>
+    <string name="backup_export">Criar Backup</string>
     <string name="backup_import_heading">Importar lançamentos</string>
     <string name="backup_import_description">Selecione um JSON exportado pelo app. Os dados atuais serão mantidos e os lançamentos que faltam serão adicionados. Importar novamente o mesmo arquivo não cria duplicatas.</string>
-    <string name="backup_import">Selecionar JSON</string>
+    <string name="backup_import">Importar Backup</string>
     <string name="backup_ready">Escolha uma opção para começar. Mantenha esta tela aberta até a conclusão.</string>
     <string name="backup_exporting">Salvando todos os lançamentos…</string>
     <string name="backup_importing">Validando e importando lançamentos…</string>

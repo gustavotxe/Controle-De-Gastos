@@ -25,6 +25,9 @@ import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.renderYears
 import com.example.controledegastos.ui.configureListMotion
+import com.example.controledegastos.ui.setupFilterBar
+import com.example.controledegastos.ui.render
+import com.example.controledegastos.ui.drawerItemId
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.bardata.BarDataActivity
 import com.example.controledegastos.ui.features.help.HelpActivity
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         binding.recyclerView.configureListMotion()
         setupDrawer()
         setupYearSelector()
+        setupFilterBar(binding.transactionFilterBar, { viewModel.mainUiState.value.filter }, viewModel::selectMainFilter)
         observeState()
         binding.floatingActionAddItem.setOnClickListener { startActivity(AddItem.newIntent(this)) }
     }
@@ -59,6 +63,8 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
     private fun observeState() = lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.mainUiState.collect { state ->
+                binding.transactionFilterBar.render(state.filter)
+                binding.navView.setCheckedItem(state.filter.drawerItemId())
                 adapter.setItems(state.items)
                 binding.totalBalanceHome.text = buildString {
                     append("Saldo total: ")

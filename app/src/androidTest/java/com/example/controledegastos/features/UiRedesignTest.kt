@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.replaceText
@@ -26,6 +27,8 @@ import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerMatchers
+import androidx.test.espresso.contrib.NavigationViewActions
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -54,6 +57,41 @@ class UiRedesignTest {
 
     @Before
     fun inject() = hiltRule.inject()
+
+    @Test
+    fun homeFilterBarAndDrawerShareSelectionAfterRecreation() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            onView(withId(R.id.transactionFilterBar)).perform(click())
+            onView(withText(R.string.inflow)).inRoot(isDialog()).perform(click())
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText("Filtro: Entradas")))
+            onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+            onView(withId(R.id.nav_view)).perform(NavigationViewActions.navigateTo(R.id.nav_outflow))
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText("Filtro: Saídas")))
+            scenario.recreate()
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText("Filtro: Saídas")))
+            onView(withId(R.id.transactionFilterBar)).perform(click())
+            onData(equalTo("Todos os lançamentos")).inRoot(isDialog()).perform(click())
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText(R.string.filter_default_label)))
+        }
+    }
+
+    @Test
+    fun monthlyFilterAndOpenPickerSurviveRecreation() {
+        val intent = Intent(ApplicationProvider.getApplicationContext(), FilterMonthActivity::class.java)
+            .putExtra(FilterMonthActivity.EXTRA_YEAR_MONTH, 202409)
+        ActivityScenario.launch<FilterMonthActivity>(intent).use { scenario ->
+            onView(withId(R.id.transactionFilterBar)).perform(click())
+            scenario.recreate()
+            onView(withText("Salário")).inRoot(isDialog()).perform(click())
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText("Filtro: Salário")))
+            scenario.recreate()
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText("Filtro: Salário")))
+            onView(withId(R.id.drawer_layout_filter)).perform(DrawerActions.open())
+            onView(withId(R.id.nav_view_filter)).perform(NavigationViewActions.navigateTo(R.id.nav_homeF))
+            onView(withId(R.id.activeFilterLabel)).check(matches(withText(R.string.filter_default_label)))
+            onView(withId(R.id.monthTitle)).check(matches(withText("Lançamentos de setembro de 2024")))
+        }
+    }
 
     @Test
     fun backupScreenIsAccessibleAfterRecreation() {

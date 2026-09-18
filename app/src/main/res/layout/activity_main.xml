@@ -47,6 +47,7 @@
                         android:paddingStart="12dp"
                         android:paddingEnd="0dp" />
                 </androidx.appcompat.widget.Toolbar>
+                <include android:id="@+id/transactionFilterBar" layout="@layout/transaction_filter_bar" />
             </com.google.android.material.appbar.AppBarLayout>
             <FrameLayout
                 android:layout_width="match_parent"

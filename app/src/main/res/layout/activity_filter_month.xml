@@ -39,6 +39,7 @@
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp" />
                 </androidx.appcompat.widget.Toolbar>
+                <include android:id="@+id/transactionFilterBar" layout="@layout/transaction_filter_bar" />
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

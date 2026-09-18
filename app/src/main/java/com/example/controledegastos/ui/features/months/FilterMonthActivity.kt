@@ -24,6 +24,9 @@ import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.features.additem.AddItem
 import com.example.controledegastos.ui.features.help.HelpActivity
 import com.example.controledegastos.ui.configureListMotion
+import com.example.controledegastos.ui.setupFilterBar
+import com.example.controledegastos.ui.render
+import com.example.controledegastos.ui.drawerItemId
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -49,7 +52,8 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         binding.recyclerViewF.configureListMotion()
         setupDrawer()
         setupMonthHeader()
-        viewModel.applyMonthFilter(yearMonth)
+        viewModel.initializeMonth(yearMonth)
+        setupFilterBar(binding.transactionFilterBar, { viewModel.monthUiState.value.filter }, viewModel::selectMonthFilter)
         observeState()
         binding.floatingActionButtonBack.setOnClickListener { finish() }
     }
@@ -65,6 +69,8 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
     private fun observeState() = lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.monthUiState.collect { state ->
+                binding.transactionFilterBar.render(state.filter)
+                binding.navViewFilter.setCheckedItem(state.filter.drawerItemId(month = true))
                 adapter.setItems(state.items)
                 binding.emptyState.isVisible = state.items.isEmpty()
                 binding.totalInflow.text = state.inflow
