@@ -25,11 +25,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp">
-            <TextView
-                style="@style/Ui.Title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/backup_heading" />
+
             <TextView
                 style="@style/Ui.Body"
                 android:layout_width="match_parent"

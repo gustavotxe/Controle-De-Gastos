@@ -1,6 +1,6 @@
 # Importação e exportação de lançamentos
 
-Acesse **Menu → Configurações → Importar / Exportar**. A operação inclui todos os
+Acesse **Menu → Configurações → Backup**. A operação inclui todos os
 anos, independentemente dos filtros ativos. O seletor de documentos do Android
 permite escolher o arquivo/destino sem permissão ampla de armazenamento.
 

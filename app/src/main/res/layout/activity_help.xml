@@ -34,11 +34,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
-            <TextView
-                style="@style/Ui.Title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/help_title" />
+
             <TextView
                 style="@style/Ui.Body"
                 android:layout_width="match_parent"
@@ -46,6 +42,29 @@
                 android:text="@string/help_hint"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp" />
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Ui.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        style="@style/Ui.Section"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/help_navigation_question" />
+                    <TextView
+                        style="@style/Ui.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/help_navigation_answer"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
             <com.google.android.material.card.MaterialCardView
                 style="@style/Ui.Card"
                 android:layout_width="match_parent"
@@ -142,6 +161,11 @@
                 style="@style/Ui.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"/>
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Ui.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -165,6 +189,11 @@
                 style="@style/Ui.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"/>
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Ui.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -175,12 +204,35 @@
                         style="@style/Ui.Section"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/help_year_question" />
+                        android:text="@string/help_export_question" />
                     <TextView
                         style="@style/Ui.Body"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/help_year_answer"
+                        android:text="@string/help_export_answer"
+                        android:layout_marginTop="12dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Ui.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        style="@style/Ui.Section"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/help_import_question" />
+                    <TextView
+                        style="@style/Ui.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/help_import_answer"
                         android:layout_marginTop="12dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
