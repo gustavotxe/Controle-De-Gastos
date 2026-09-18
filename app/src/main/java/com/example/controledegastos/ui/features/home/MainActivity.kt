@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
             .setOnClickListener { drawerLayout.closeDrawer(GravityCompat.START) }
         binding.navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
+                R.id.nav_backup -> startActivity(Intent(this, com.example.controledegastos.ui.features.backup.BackupActivity::class.java))
                 R.id.nav_home -> viewModel.applyMainAllFilter()
                 R.id.nav_calendar -> startActivity(Intent(this, MonthsActivity::class.java))
                 R.id.nav_resumo -> startActivity(Intent(this, BarDataActivity::class.java))

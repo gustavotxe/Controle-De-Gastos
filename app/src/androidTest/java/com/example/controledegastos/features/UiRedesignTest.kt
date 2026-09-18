@@ -56,6 +56,16 @@ class UiRedesignTest {
     fun inject() = hiltRule.inject()
 
     @Test
+    fun backupScreenIsAccessibleAfterRecreation() {
+        ActivityScenario.launch(com.example.controledegastos.ui.features.backup.BackupActivity::class.java).use { scenario ->
+            onView(withId(R.id.exportButton)).perform(scrollTo()).check(matches(isDisplayed()))
+            onView(withId(R.id.importButton)).perform(scrollTo()).check(matches(isDisplayed()))
+            scenario.recreate()
+            onView(withId(R.id.backupStatus)).perform(scrollTo()).check(matches(withText(R.string.backup_ready)))
+        }
+    }
+
+    @Test
     fun homeActionOpensScrollableForm() {
         ActivityScenario.launch(MainActivity::class.java).use {
             onView(withId(R.id.floatingActionAddItem)).perform(click())

@@ -84,6 +84,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
             .setOnClickListener { drawer.closeDrawer(GravityCompat.START) }
         binding.navViewFilter.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
+                R.id.nav_backup -> startActivity(Intent(this, com.example.controledegastos.ui.features.backup.BackupActivity::class.java))
                 R.id.nav_homeF -> viewModel.applyMonthFilter(yearMonth)
                 R.id.nav_inflowF -> viewModel.applyMonthFilter(yearMonth, flow = FlowType.INFLOW.value)
                 R.id.nav_outflowF -> viewModel.applyMonthFilter(yearMonth, flow = FlowType.OUTFLOW.value)

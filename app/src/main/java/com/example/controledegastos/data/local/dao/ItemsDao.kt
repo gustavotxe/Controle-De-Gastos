@@ -10,6 +10,9 @@ import com.example.controledegastos.data.model.Items
 @Dao
 interface ItemsDao{
 
+    @Query("SELECT * FROM Items ORDER BY yearMonth ASC, occurredAtMillis ASC, id ASC")
+    suspend fun getBackupSnapshot(): List<Items>
+
     @Insert
     suspend fun insertItem(items: Items)
 
