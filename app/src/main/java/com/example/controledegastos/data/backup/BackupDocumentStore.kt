@@ -11,7 +11,6 @@ import java.io.FilterOutputStream
 import java.io.Writer
 import javax.inject.Inject
 
-/** Only holds the application context; streams are always owned and closed by the caller. */
 class BackupDocumentStore @Inject constructor(@ApplicationContext private val context: Context) {
     fun openInput(uri: Uri): InputStream {
         val stream = context.contentResolver.openInputStream(uri) ?: throw IOException()
@@ -27,8 +26,28 @@ class BackupDocumentStore @Inject constructor(@ApplicationContext private val co
         }
     }
 
-    /** Stage and bound the JSON before touching the chosen destination. */
-    fun write(uri: Uri, checkActive: () -> Unit, encode: (Writer) -> Unit) {
+    suspend fun <T> withLocalInput(uri: Uri, checkActive: () -> Unit, block: suspend (File) -> T): T {
+        val temporary = File.createTempFile("import-", ".json", context.cacheDir)
+        try {
+            openInput(uri).use { input ->
+                temporary.outputStream().use { output ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        checkActive()
+                        val read = input.read(buffer)
+                        if (read < 0) break
+                        output.write(buffer, 0, read)
+                    }
+                }
+            }
+            checkActive()
+            return block(temporary)
+        } finally {
+            temporary.delete()
+        }
+    }
+
+    suspend fun write(uri: Uri, checkActive: () -> Unit, encode: suspend (Writer) -> Unit) {
         val temporary = File.createTempFile("transactions-", ".json", context.cacheDir)
         try {
             temporary.outputStream().use { fileStream ->
@@ -45,7 +64,7 @@ class BackupDocumentStore @Inject constructor(@ApplicationContext private val co
                         out.write(buffer, offset, length)
                     }
                 }
-                bounded.bufferedWriter(Charsets.UTF_8).use(encode)
+                bounded.bufferedWriter(Charsets.UTF_8).use { encode(it) }
             }
             checkActive()
             val output = context.contentResolver.openOutputStream(uri, "wt") ?: throw IOException()

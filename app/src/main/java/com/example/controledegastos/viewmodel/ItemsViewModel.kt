@@ -79,6 +79,7 @@ class ItemsViewModel @Inject constructor(
             val outflow = items.filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
             AnnualChartUiState(inflow, outflow, inflow + outflow)
         }
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnnualChartUiState())
 
     fun selectMainFilter(filter: TransactionFilter) { savedStateHandle["main_filter"] = filter }

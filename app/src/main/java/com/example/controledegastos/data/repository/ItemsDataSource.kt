@@ -4,6 +4,7 @@ import com.example.controledegastos.data.model.Items
 import kotlinx.coroutines.flow.Flow
 
 interface ItemsDataSource {
+    val availableYears: Flow<List<Int>>
     val allItems: Flow<List<Items>>
     suspend fun insertItem(item: Items)
     suspend fun updateItem(item: Items)

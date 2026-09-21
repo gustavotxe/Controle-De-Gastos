@@ -3,7 +3,6 @@ package com.example.controledegastos.ui.model
 import com.example.controledegastos.data.model.CategoryType
 import com.example.controledegastos.data.model.FlowType
 
-/** One selection shared by the drawer, filter bar and transaction query. */
 enum class TransactionFilter(val flow: String? = null, val category: String? = null) {
     ALL,
     INFLOW(flow = FlowType.INFLOW.value),

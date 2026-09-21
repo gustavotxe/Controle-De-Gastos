@@ -60,6 +60,39 @@ class UiRedesignTest {
     fun inject() = hiltRule.inject()
 
     @Test
+    fun longTransactionCardsUseBoundedPreviewsAndScreensRecreate() {
+        val item = com.example.controledegastos.data.model.Items(1, "d".repeat(100_000),
+            "n".repeat(100_000), "Entrada", "p".repeat(100_000), 100, 1726444800000L,
+            202409, "c".repeat(100_000))
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val listener = object : com.example.controledegastos.listeners.OnClickInterface {
+                    override fun onClickDelete(id: Int) = Unit
+                    override fun onClickEdit(items: com.example.controledegastos.data.model.Items, value: String) = Unit
+                }
+                val adapter = com.example.controledegastos.ui.adapter.MyAdapter(listener)
+                adapter.submitList(listOf(item))
+                val holder = adapter.onCreateViewHolder(activity.findViewById<RecyclerView>(R.id.recyclerView), 0)
+                adapter.onBindViewHolder(holder, 0)
+                assertEquals(121, holder.desc.text.length)
+                assertEquals(651, holder.obs.text.length)
+                assertEquals(121, holder.payMethod.text.length)
+                assertEquals(121, holder.ctg.text.length)
+                assertEquals(2, holder.desc.maxLines)
+                assertEquals(4, holder.obs.maxLines)
+                assertEquals(100_000, item.observation.length)
+            }
+            scenario.recreate()
+        }
+        ActivityScenario.launch(MonthsActivity::class.java).use { scenario ->
+            scenario.recreate()
+            scenario.onActivity { activity ->
+                assertTrue(activity.findViewById<RecyclerView>(R.id.recyclerViewMonths).adapter != null)
+            }
+        }
+    }
+
+    @Test
     fun amountFieldAcceptsBrazilianGroupingAndRejectsInvalidDecimals() {
         ActivityScenario.launch(AddItem::class.java).use { scenario ->
             onView(withId(R.id.editValue)).perform(scrollTo(), replaceText("7.000"), closeSoftKeyboard())

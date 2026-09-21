@@ -46,23 +46,24 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         if (yearMonth / 100 <= 0 || yearMonth % 100 !in 1..12) { finish(); return }
         binding = ActivityFilterMonthBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         adapter = MyAdapter(this)
         binding.recyclerViewF.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewF.adapter = adapter
-        binding.recyclerViewF.configureListMotion()
+        binding.recyclerViewF.configureListMotion(this)
+        binding.floatingActionButtonBack.setOnClickListener { finish() }
+
         setupDrawer()
         setupMonthHeader()
         viewModel.initializeMonth(yearMonth)
         setupFilterBar(binding.transactionFilterBar, { viewModel.monthUiState.value.filter }, viewModel::selectMonthFilter)
         observeState()
-        binding.floatingActionButtonBack.setOnClickListener { finish() }
     }
 
     private fun setupMonthHeader() {
         val year = yearMonth / 100
         val monthName = DateFormatSymbols(Locale("pt", "BR")).months[yearMonth % 100 - 1]
         binding.monthTitle.text = getString(R.string.monthly_transactions_title, monthName, year.toString())
-        // Reapply the period from navigation, including after process recreation.
         viewModel.selectYear(year)
     }
 

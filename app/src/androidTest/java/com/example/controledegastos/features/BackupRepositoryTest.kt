@@ -3,6 +3,7 @@ package com.example.controledegastos.features
 import android.content.Context
 import android.net.Uri
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.controledegastos.data.backup.BackupDocumentStore
@@ -15,6 +16,7 @@ import com.example.controledegastos.data.model.Items
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -108,6 +110,63 @@ class BackupRepositoryTest {
     @Test fun emptyBackupRoundTrips() = runBlocking {
         assertEquals(0, repository.export(Uri.fromFile(file)))
         assertEquals(ImportResult(0, 0), repository.import(Uri.fromFile(file)))
+    }
+
+    @Test fun streamingMergePreservesMultiplicityAcrossBatchesAndFieldBoundaries() = runBlocking {
+        val first = sample.copy(description = "ab", observation = "c")
+        val second = sample.copy(description = "a", observation = "bc")
+        database.getItemsDao().insertAllItems(List(70) { first })
+        val imported = List(140) { first } + List(70) { second }
+        codec.write(file.writer(), imported) {}
+        assertEquals(ImportResult(140, 70), repository.import(Uri.fromFile(file)))
+        assertEquals(ImportResult(0, 210), repository.import(Uri.fromFile(file)))
+        assertEquals(210, repository.export(Uri.fromFile(file)))
+        val decoded = codec.read(file.reader()) {}
+        assertEquals(140, decoded.count { it == first })
+        assertEquals(70, decoded.count { it == second })
+    }
+
+    @Test fun longImportedTextIsPreservedInBackup() = runBlocking {
+        val longItem = sample.copy(description = "d".repeat(10_000), observation = "n".repeat(100_000))
+        codec.write(file.writer(), List(10) { longItem }) {}
+        assertEquals(ImportResult(10, 0), repository.import(Uri.fromFile(file)))
+        assertEquals(10, repository.export(Uri.fromFile(file)))
+        assertEquals(List(10) { longItem }, codec.read(file.reader()) {})
+    }
+
+    @Test fun availableYearsAreDistinctSortedAndIgnoreInvalidYears() = runBlocking {
+        database.getItemsDao().insertAllItems(listOf(
+            sample.copy(yearMonth = 202409), sample.copy(yearMonth = 202412),
+            sample.copy(yearMonth = 202601), sample.copy(yearMonth = 0)
+        ))
+        assertEquals(listOf(2026, 2024), database.getItemsDao().getAvailableYears().first())
+    }
+
+    @Test fun invalidTrailingMetadataDoesNotImportEarlierRows() = runBlocking {
+        val valid = StringWriter().also { codec.write(it, List(130) { sample }) {} }.toString()
+        file.writeText(valid.dropLast(1) + ", \"unknown\": true}")
+        try {
+            repository.import(Uri.fromFile(file))
+            fail("Unknown trailing metadata accepted")
+        } catch (_: InvalidBackupException) { }
+        assertEquals(0L, database.getItemsDao().countItems())
+    }
+
+    @Test fun oversizedDatabaseIsRejectedWithoutOverwritingDestination() = runBlocking {
+        database.withTransaction {
+            database.openHelper.writableDatabase.execSQL(
+                "WITH RECURSIVE rows(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM rows WHERE n < 100001) " +
+                    "INSERT INTO Items (id, description, observation, io, paymentMethod, amountCents, " +
+                    "occurredAtMillis, yearMonth, category) " +
+                    "SELECT n, '', '', 'Entrada', 'Pix', 1, 1726444800000, 202409, '' FROM rows"
+            )
+        }
+        file.writeText("existing backup")
+        try {
+            repository.export(Uri.fromFile(file))
+            fail("Oversized database exported")
+        } catch (_: InvalidBackupException) { }
+        assertEquals("existing backup", file.readText())
     }
 
     @Test fun databaseFailureRollsBackEarlierBatches() = runBlocking {

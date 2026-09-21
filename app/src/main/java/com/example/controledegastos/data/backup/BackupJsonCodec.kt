@@ -10,45 +10,73 @@ import java.io.FilterReader
 import java.io.Writer
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 
 class InvalidBackupException : Exception()
 
-/** Versioned, UTF-8 format. Database IDs are informational, never imported as primary keys. */
 class BackupJsonCodec @Inject constructor() {
-    fun write(output: Writer, items: List<Items>, checkActive: () -> Unit) {
+    suspend fun writeRows(output: Writer, items: Flow<Items>, checkActive: () -> Unit): Int {
+        var count = 0
         JsonWriter(output).use { json ->
-            json.setIndent("  ")
-            json.beginObject()
-            json.name("format").value(FORMAT)
-            json.name("version").value(1)
-            json.name("amountUnit").value("cents")
-            json.name("transactions").beginArray()
+            writeHeader(json)
+            items.collect { item ->
+                checkActive()
+                if (count >= MAX_ITEMS) throw InvalidBackupException()
+                writeItem(json, item)
+                count++
+            }
+            json.endArray().endObject()
+        }
+        return count
+    }
+
+    fun write(output: Writer, items: List<Items>, checkActive: () -> Unit) {
+        if (items.size > MAX_ITEMS) throw InvalidBackupException()
+        JsonWriter(output).use { json ->
+            writeHeader(json)
             items.forEach { item ->
                 checkActive()
-                validate(item)
-                json.beginObject()
-                json.name("id").value(item.id)
-                json.name("yearMonth").value(item.yearMonth)
-                json.name("occurredAtMillis").value(item.occurredAtMillis)
-                json.name("description").value(item.description)
-                json.name("observation").value(item.observation)
-                json.name("io").value(item.io)
-                json.name("paymentMethod").value(item.paymentMethod)
-                json.name("amountCents").value(item.amountCents)
-                json.name("category").value(item.category)
-                json.endObject()
+                writeItem(json, item)
             }
             json.endArray().endObject()
         }
     }
 
-    fun read(input: Reader, checkActive: () -> Unit): List<Items> {
+    private fun writeHeader(json: JsonWriter) {
+        json.setIndent("  ")
+        json.beginObject()
+        json.name("format").value(FORMAT)
+        json.name("version").value(1)
+        json.name("amountUnit").value("cents")
+        json.name("transactions").beginArray()
+    }
+
+    private fun writeItem(json: JsonWriter, item: Items) {
+        validate(item)
+        json.beginObject()
+        json.name("id").value(item.id)
+        json.name("yearMonth").value(item.yearMonth)
+        json.name("occurredAtMillis").value(item.occurredAtMillis)
+        json.name("description").value(item.description)
+        json.name("observation").value(item.observation)
+        json.name("io").value(item.io)
+        json.name("paymentMethod").value(item.paymentMethod)
+        json.name("amountCents").value(item.amountCents)
+        json.name("category").value(item.category)
+        json.endObject()
+    }
+
+    fun read(input: Reader, checkActive: () -> Unit): List<Items> =
+        input.use { readRows(it, checkActive).toList() }
+
+    fun readRows(input: Reader, checkActive: () -> Unit): Sequence<Items> = sequence {
         try {
-            return JsonReader(TokenBoundedReader(input, checkActive)).use { json ->
+            JsonReader(TokenBoundedReader(input, checkActive)).use { json ->
                 var format: String? = null
                 var version: Long? = null
                 var unit: String? = null
-                var items: List<Items>? = null
+                var hasItems = false
                 val fields = mutableSetOf<String>()
                 json.beginObject()
                 while (json.hasNext()) {
@@ -60,15 +88,16 @@ class BackupJsonCodec @Inject constructor() {
                         "version" -> version = json.integer()
                         "amountUnit" -> unit = json.string()
                         "transactions" -> {
-                            val rows = ArrayList<Items>()
+                            var count = 0
                             json.beginArray()
                             while (json.hasNext()) {
                                 checkActive()
-                                require(rows.size < MAX_ITEMS)
-                                rows.add(readItem(json))
+                                require(count < MAX_ITEMS)
+                                yield(readItem(json))
+                                count++
                             }
                             json.endArray()
-                            items = rows
+                            hasItems = true
                         }
                         else -> throw InvalidBackupException()
                     }
@@ -76,7 +105,7 @@ class BackupJsonCodec @Inject constructor() {
                 json.endObject()
                 require(json.peek() == JsonToken.END_DOCUMENT)
                 require(format == FORMAT && version == 1L && unit == "cents")
-                requireNotNull(items)
+                require(hasItems)
             }
         } catch (e: CancellationException) {
             throw e
@@ -137,7 +166,6 @@ class BackupJsonCodec @Inject constructor() {
 
     private fun JsonReader.integer(): Long {
         require(peek() == JsonToken.NUMBER)
-        // nextLong may round decimal tokens: parse the original token instead.
         return nextString().toLong()
     }
 
@@ -148,7 +176,6 @@ class BackupJsonCodec @Inject constructor() {
     }
 }
 
-/** Prevent JsonReader from allocating an arbitrarily large string/number before validation. */
 private class TokenBoundedReader(input: Reader, private val checkActive: () -> Unit) : FilterReader(input) {
     private var inString = false
     private var escaped = false
@@ -167,7 +194,6 @@ private class TokenBoundedReader(input: Reader, private val checkActive: () -> U
             character.isWhitespace() || character in "{}[],:" -> tokenLength = 0
             else -> tokenLength++
         }
-        // A valid character can occupy six source characters (a JSON Unicode escape).
         if (tokenLength > BackupJsonCodec.MAX_TEXT_LENGTH * 6) throw InvalidBackupException()
     }
 

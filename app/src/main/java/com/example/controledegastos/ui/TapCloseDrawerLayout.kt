@@ -8,11 +8,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import androidx.drawerlayout.widget.DrawerLayout
 
-/**
- * Keeps an open drawer out of the horizontal drag recognizer so diagonal menu
- * scrolling cannot close it. Outside taps, buttons and system back still work.
- * Opening gestures continue to use DrawerLayout's normal behavior.
- */
 class TapCloseDrawerLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -35,8 +30,6 @@ class TapCloseDrawerLayout @JvmOverloads constructor(
                 !drawerBounds.contains(event.x.toInt(), event.y.toInt())
         }
         if (openDrawerAtDown == null) return super.onInterceptTouchEvent(event)
-        // Cancel a horizontal swipe rather than letting a menu row treat its UP
-        // as a click. Vertical/mostly vertical movement stays with the menu.
         val dx = kotlin.math.abs(event.x - downX)
         val dy = kotlin.math.abs(event.y - downY)
         val horizontalSwipe = event.actionMasked == MotionEvent.ACTION_MOVE &&

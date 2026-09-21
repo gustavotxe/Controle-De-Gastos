@@ -33,6 +33,7 @@ class BackupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBackupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.backupToolbar.setNavigationOnClickListener { finish() }
         binding.exportButton.setOnClickListener {
             val date = SimpleDateFormat("yyyy-MM-dd-HHmmss", Locale.ROOT).format(Date())

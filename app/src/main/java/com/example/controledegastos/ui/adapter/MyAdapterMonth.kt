@@ -73,7 +73,6 @@ class MyAdapterMonth(
             setTouchEnabled(monthSummary.hasData)
             isRotationEnabled = monthSummary.hasData
             isHighlightPerTapEnabled = monthSummary.hasData
-            // Rotate while dragging, without an inertial animation during list scrolling.
             isDragDecelerationEnabled = false
             rotationAngle = 270f
             highlightValues(null)

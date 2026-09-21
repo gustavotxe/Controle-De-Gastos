@@ -3,7 +3,6 @@ package com.example.controledegastos.data.local.database
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-/** Schema upgrades deliberately preserve the user's financial history. */
 object AppDatabaseMigrations {
     val MIGRATION_2_3 = object : Migration(2, 3) {
         override fun migrate(db: SupportSQLiteDatabase) {

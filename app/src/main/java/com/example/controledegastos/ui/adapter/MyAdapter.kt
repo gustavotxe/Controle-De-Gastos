@@ -42,14 +42,16 @@ class MyAdapter(private val listenerInterface: OnClickInterface) :
 
         val model = getItem(position)
 
-        holder.desc.text = model.description
-        holder.obs.text = model.observation
-        holder.obs.isVisible = model.observation.isNotBlank()
+        val description = model.description.preview(120)
+        val observation = model.observation.preview(650)
+        holder.desc.text = description
+        holder.obs.text = observation
+        holder.obs.isVisible = observation.isNotBlank()
         holder.iOtext.text = model.io
-        holder.payMethod.text = model.paymentMethod
+        holder.payMethod.text = model.paymentMethod.preview(120)
         holder.data.text = TransactionDate.format(model.occurredAtMillis)
         holder.month.text = model.yearMonth.toString()
-        holder.ctg.text = model.category
+        holder.ctg.text = model.category.preview(120)
 
         holder.iOtext.setTextColor(
             ContextCompat.getColor(holder.itemView.context,
@@ -66,14 +68,16 @@ class MyAdapter(private val listenerInterface: OnClickInterface) :
 
         holder.editIcon.setOnClickListener { listenerInterface.onClickEdit(model, value) }
         holder.delete.setOnClickListener { listenerInterface.onClickDelete(model.id) }
-        holder.editIcon.contentDescription = holder.itemView.context.getString(R.string.edit_item, model.description)
-        holder.delete.contentDescription = holder.itemView.context.getString(R.string.delete_item, model.description)
+        holder.editIcon.contentDescription = holder.itemView.context.getString(R.string.edit_item, description)
+        holder.delete.contentDescription = holder.itemView.context.getString(R.string.delete_item, description)
 
     }
 
     fun setItems(newItems: List<Items>) {
         submitList(newItems)
     }
+
+    private fun String.preview(limit: Int): String = if (length > limit) take(limit) + "…" else this
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<Items>() {

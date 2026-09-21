@@ -11,7 +11,6 @@ import com.example.controledegastos.databinding.TransactionFilterBarBinding
 import com.example.controledegastos.ui.model.TransactionFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-/** Fragment ownership makes the picker safe across rotation and Activity recreation. */
 class TransactionFilterDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val filters = TransactionFilter.entries

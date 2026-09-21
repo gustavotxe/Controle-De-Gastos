@@ -56,12 +56,15 @@ class AddItem : AppCompatActivity() {
         val dateMillis = savedState?.getLong(STATE_DATE) ?: intent.getLongExtra(EXTRA_DATE, 0L)
         dateSelected = savedState?.getBoolean(STATE_DATE_SELECTED) ?: (dateMillis > 0)
         if (dateSelected) calendar.timeInMillis = dateMillis
+
         binding.DescId.setText(savedState?.getString(STATE_DESCRIPTION) ?: intent.getStringExtra(EXTRA_DESCRIPTION).orEmpty())
         binding.ObsId.setText(savedState?.getString(STATE_OBSERVATION) ?: intent.getStringExtra(EXTRA_OBSERVATION).orEmpty())
         binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: if (editingId != null) editingAmount() else "")
+
         select(binding.spinnerIO, savedState?.getString(STATE_FLOW) ?: intent.getStringExtra(EXTRA_FLOW).orEmpty())
         select(binding.spinnerPayment, savedState?.getString(STATE_PAYMENT) ?: intent.getStringExtra(EXTRA_PAYMENT).orEmpty())
         select(binding.spinnerCategory, savedState?.getString(STATE_CATEGORY) ?: intent.getStringExtra(EXTRA_CATEGORY).orEmpty())
+
         if (dateSelected) updateDate()
         if (editingId == null) return
 

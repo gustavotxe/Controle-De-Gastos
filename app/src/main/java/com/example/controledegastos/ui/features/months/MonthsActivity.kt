@@ -46,7 +46,7 @@ class MonthsActivity : AppCompatActivity() {
 
         binding.recyclerViewMonths.layoutManager = LinearLayoutManager(this@MonthsActivity)
         binding.recyclerViewMonths.adapter = adapter
-        binding.recyclerViewMonths.configureListMotion()
+        binding.recyclerViewMonths.configureListMotion(this)
 
         setupYearSelector()
 

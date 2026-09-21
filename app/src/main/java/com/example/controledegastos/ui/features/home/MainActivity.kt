@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         adapter = MyAdapter(this)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.configureListMotion()
+        binding.recyclerView.configureListMotion(this)
         setupDrawer()
         setupYearSelector()
         setupFilterBar(binding.transactionFilterBar, { viewModel.mainUiState.value.filter }, viewModel::selectMainFilter)

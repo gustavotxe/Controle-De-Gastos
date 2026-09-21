@@ -7,6 +7,8 @@ import javax.inject.Inject
 
 class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) : ItemsDataSource {
 
+    override val availableYears: Flow<List<Int>> = itemsDao.getAvailableYears()
+
     override val allItems: Flow<List<Items>> = itemsDao.getAllItems()
 
     override suspend fun insertItem(item: Items) {
@@ -38,7 +40,6 @@ class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) : Item
         return itemsDao.getMonth(yearMonth)
     }
 
-    //Filtro por entrada/saída de determinado mês
     override fun getMonthFlow(yearMonth: Int, flow: String): Flow<List<Items>> {
         return itemsDao.getMonthFlow(yearMonth, flow)
     }
@@ -51,7 +52,6 @@ class ItemsRepository @Inject constructor(private val itemsDao: ItemsDao) : Item
         return itemsDao.getCategory(category)
     }
 
-    //Filtro por mês e categoria
     override fun getMonthCtg(yearMonth: Int, category: String): Flow<List<Items>> {
         return itemsDao.getMonthCtg(yearMonth, category)
     }

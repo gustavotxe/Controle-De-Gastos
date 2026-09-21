@@ -16,7 +16,6 @@ class ItemsViewModelTest {
         val viewModel = ItemsViewModel(repository, YearSelectionRepository(repository))
         val item = Items(0, "Salário", "", "Entrada", "Pagamento à vista", 12_345, 1_735_689_600_000, 202501, "Salário")
 
-        // The ViewModel launches on Dispatchers.IO, outside the test scheduler.
         viewModel.insertItem(item).join()
 
         assertEquals(item, repository.inserted)
@@ -25,6 +24,7 @@ class ItemsViewModelTest {
     private class FakeItemsDataSource : ItemsDataSource {
         var inserted: Items? = null
         override val allItems = flowOf(emptyList<Items>())
+        override val availableYears = flowOf(emptyList<Int>())
         override suspend fun insertItem(item: Items) { inserted = item }
         override suspend fun updateItem(item: Items) = Unit
         override suspend fun deleteItem(id: Int) = Unit

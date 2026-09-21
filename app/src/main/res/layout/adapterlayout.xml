@@ -17,11 +17,15 @@
         android:paddingBottom="8dp">
         <TextView
             android:id="@+id/DescTv"
+            android:maxLines="2"
+            android:ellipsize="end"
             style="@style/Ui.Section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <TextView
             android:id="@+id/CtgTv"
+            android:maxLines="2"
+            android:ellipsize="end"
             style="@style/Ui.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,6 +45,8 @@
                 android:paddingStart="0dp" />
             <TextView
                 android:id="@+id/textPayMethod"
+                android:maxLines="2"
+                android:ellipsize="end"
                 style="@style/Ui.Caption"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -48,6 +54,8 @@
         </LinearLayout>
         <TextView
             android:id="@+id/ObsTv"
+            android:maxLines="4"
+            android:ellipsize="end"
             style="@style/Ui.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

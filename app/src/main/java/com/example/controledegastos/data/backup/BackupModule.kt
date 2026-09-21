@@ -16,9 +16,11 @@ annotation class BackupIo
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class BackupModule {
-    @Binds abstract fun bindBackupRepository(repository: JsonBackupRepository): BackupRepository
+    @Binds
+    abstract fun bindBackupRepository(repository: JsonBackupRepository): BackupRepository
 
     companion object {
-        @Provides @BackupIo fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
+        @Provides @BackupIo
+        fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
     }
 }
