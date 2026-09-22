@@ -10,7 +10,6 @@
         android:icon="@mipmap/ic_manager"
         android:label="Controle de Gastos"
         android:roundIcon="@mipmap/ic_manager"
-        android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.ControleDeGastos"
         tools:targetApi="31">
@@ -44,6 +43,7 @@
         <activity
             android:name=".ui.features.additem.AddItem"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.features.home.MainActivity"

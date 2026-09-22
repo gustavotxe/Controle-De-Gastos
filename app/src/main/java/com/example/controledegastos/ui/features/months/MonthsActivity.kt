@@ -7,6 +7,7 @@ import android.widget.AdapterView
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -31,6 +32,7 @@ class MonthsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAllMonthsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configureSystemInsets()
 
         adapter = MyAdapterMonth { monthSummary ->
             if (!monthSummary.hasData) {

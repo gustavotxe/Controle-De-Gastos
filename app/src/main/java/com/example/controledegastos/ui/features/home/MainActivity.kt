@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
+import com.example.controledegastos.ui.configureDrawerBack
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -49,6 +51,8 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        configureSystemInsets()
         adapter = MyAdapter(this)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
@@ -92,6 +96,7 @@ class MainActivity : AppCompatActivity(), OnClickInterface {
 
     private fun setupDrawer() {
         drawerLayout = binding.drawerLayout
+        configureDrawerBack(drawerLayout)
         toggle = ActionBarDrawerToggle(this, drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()

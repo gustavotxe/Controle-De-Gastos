@@ -30,9 +30,6 @@ local.properties
 # Arquivos de ambiente e variáveis locais
 .env
 
-# Diretório de dependências do Gradle Wrapper
-/gradle/wrapper/gradle-wrapper.properties
-
 # Arquivos de crashlytics / firebase
 crashlytics.properties
 fabric.properties

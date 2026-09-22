@@ -1,6 +1,7 @@
 package com.example.controledegastos.ui.features.bardata
 
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -32,6 +33,7 @@ class BarDataActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityGratBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configureSystemInsets()
 
         binding.backIconGratActivity.setOnClickListener { finish() }
 

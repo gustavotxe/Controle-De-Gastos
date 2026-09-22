@@ -5,7 +5,8 @@ import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
@@ -46,7 +47,7 @@ class AddItemTest {
     @Test
     fun datePickerTest(){
         //Teste do DatePicker
-        onView(withId(R.id.textDateSelected)).perform(click())
+        onView(withId(R.id.textDateSelected)).perform(scrollTo(), click())
 
         onView(withClassName(equalTo(DatePicker::class.java.name)))
             .perform(PickerActions.setDate(2025, 1, 15))
@@ -69,13 +70,13 @@ class AddItemTest {
         val textLenghtLimitDesc = "A".repeat(120)
         val textLenghtTestDesc = "A".repeat(120)
 
-        onView(withId(R.id.DescId)).perform(typeText(textLenghtTestDesc), closeSoftKeyboard())
+        onView(withId(R.id.DescId)).perform(scrollTo(), replaceText(textLenghtTestDesc), closeSoftKeyboard())
         onView(withId(R.id.DescId)).check(matches(withText(textLenghtLimitDesc)))
 
-        onView(withId(R.id.editValue)).perform(typeText(textLenghtTestDouble), closeSoftKeyboard())
+        onView(withId(R.id.editValue)).perform(scrollTo(), replaceText(textLenghtTestDouble), closeSoftKeyboard())
         onView(withId(R.id.editValue)).check(matches(withText(textLenghtLimitDouble)))
 
-        onView(withId(R.id.ObsId)).perform(typeText(textLenghtTest), closeSoftKeyboard())
+        onView(withId(R.id.ObsId)).perform(scrollTo(), replaceText(textLenghtTest), closeSoftKeyboard())
         onView(withId(R.id.ObsId)).check(matches(withText(textLenghtLimit)))
 
     }

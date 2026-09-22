@@ -234,6 +234,7 @@ class UiRedesignTest {
         onView(withId(menuId)).perform(swipeLeft())
         onView(withId(drawerId)).check(matches(DrawerMatchers.isOpen()))
         onView(withId(R.id.closeDrawerButton)).perform(click())
+        waitForDrawerClosed(drawerId)
         onView(withId(drawerId)).check(matches(DrawerMatchers.isClosed()))
         onView(withId(drawerId)).perform(DrawerActions.open())
         onView(withId(menuId)).perform(swipeUp())
@@ -243,7 +244,23 @@ class UiRedesignTest {
             view.getLocationOnScreen(position)
             floatArrayOf(position[0] + view.width - 8f, position[1] + view.height / 2f)
         }, Press.FINGER, InputDevice.SOURCE_TOUCHSCREEN, MotionEvent.BUTTON_PRIMARY))
+        waitForDrawerClosed(drawerId)
         onView(withId(drawerId)).check(matches(DrawerMatchers.isClosed()))
+    }
+
+    private fun waitForDrawerClosed(drawerId: Int) {
+        onView(withId(drawerId)).perform(object : androidx.test.espresso.ViewAction {
+            override fun getConstraints() = isDisplayed()
+            override fun getDescription() = "Wait for the drawer closing animation"
+            override fun perform(controller: androidx.test.espresso.UiController, view: View) {
+                val drawer = view as androidx.drawerlayout.widget.DrawerLayout
+                val deadline = android.os.SystemClock.uptimeMillis() + 3_000
+                while (drawer.isDrawerVisible(androidx.core.view.GravityCompat.START) &&
+                    android.os.SystemClock.uptimeMillis() < deadline) {
+                    controller.loopMainThreadForAtLeast(16)
+                }
+            }
+        })
     }
 
     @Test

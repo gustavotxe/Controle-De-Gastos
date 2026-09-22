@@ -1,148 +1,146 @@
 package com.example.controledegastos.features
 
+import android.content.Context
 import android.view.View
+import android.widget.DatePicker
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.contrib.RecyclerViewActions.scrollTo
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.controledegastos.R
 import com.example.controledegastos.data.local.dao.ItemsDao
 import com.example.controledegastos.data.local.database.AppDatabase
+import com.example.controledegastos.data.local.database.DatabaseModule
 import com.example.controledegastos.data.model.Items
-import com.example.controledegastos.ui.adapter.MyAdapter
 import com.example.controledegastos.ui.features.home.MainActivity
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.allOf
-import org.hamcrest.Matcher
+import kotlinx.coroutines.withTimeout
+import org.hamcrest.Matchers.equalTo
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
+import java.util.Calendar
 import javax.inject.Inject
+import javax.inject.Singleton
 
+/** CRUD regression tests use an isolated in-memory database, never the installed user's data. */
 @HiltAndroidTest
-@RunWith(AndroidJUnit4::class)
+@UninstallModules(DatabaseModule::class)
 class MainActivityTest {
+    @get:Rule val hiltRule = HiltAndroidRule(this)
+    @Inject lateinit var itemsDao: ItemsDao
+    @Inject lateinit var database: AppDatabase
+    private lateinit var scenario: ActivityScenario<MainActivity>
+    private val year = Calendar.getInstance().get(Calendar.YEAR)
 
-    @get:Rule
-    val hiltRule = HiltAndroidRule(this)
-
-    @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
-
-    @Inject
-    lateinit var itemsDao: ItemsDao
-
-    @Inject
-    lateinit var database: AppDatabase
-
-    @Before
-    fun setup() {
+    @Before fun setup() {
         hiltRule.inject()
+        runBlocking { itemsDao.insertItem(Items(1, "Registro de teste", "Observação", "Entrada",
+            "Pagamento à vista", 15_000, Calendar.getInstance().timeInMillis, year * 100 + 9, "Salário")) }
+        scenario = ActivityScenario.launch(MainActivity::class.java)
+        waitForItems(1)
     }
 
-    @After
-    fun tearDown() {
-        database.clearAllTables()
+    @After fun tearDown() {
+        scenario.close()
+        database.close()
     }
 
-    @Test
-    fun testButtonAddItemActivity(){
-
-        onView(withId(R.id.floatingActionAddItem)).perform(click())
-        onView(withId(R.id.DescId)).check(matches(isDisplayed()))
+    @Test fun recyclerViewDisplaysPersistedAmount() {
+        onView(withId(R.id.recyclerView)).check(matches(hasDescendant(withText("Registro de teste"))))
+        onView(withId(R.id.textValue)).check(matches(withText(com.example.controledegastos.ui.model.Money.format(15_000))))
     }
 
-    @Test
-    fun testRecyclerViewDisplaysItems() {
-        //Teste recyclerView com itens no banco de dados
-
-        createDatabaseItems()
-
-        onView(withId(R.id.recyclerView))
-            .perform(scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText("descrição"))))
-            .check(matches(hasDescendant(withText("descrição"))))
-
-        onView(withId(R.id.recyclerView))
-            .perform(scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText("observação 2"))))
-            .check(matches(hasDescendant(withText("observação 2"))))
-
-        onView(withId(R.id.recyclerView))
-            .perform(scrollTo<RecyclerView.ViewHolder>(hasDescendant(withText("Saúde"))))
-            .check(matches(hasDescendant(withText("Saúde"))))
-    }
-
-    @Test
-    fun testRecyclerViewClick(){
-        //Teste para clicar no ícone de editar de um item do RecyclerView
-
-        createDatabaseItems()
-
-        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions
-                .actionOnItemAtPosition<MyAdapter.Mvh>(2, clickWithId(R.id.editIcon)))
-
-        onView(withText("Deseja editar este item?"))
-            .check(matches(isDisplayed()))
-
+    @Test fun editAndDeleteTransaction() {
+        clickItemChild(R.id.editIcon)
+        onView(withId(R.id.DescId)).check(matches(withText("Registro de teste")))
+            .perform(replaceText("Registro editado"), closeSoftKeyboard())
+        onView(withId(R.id.editValue)).perform(scrollTo(), replaceText("7.000,00"), closeSoftKeyboard())
+        onView(withId(R.id.saveNote)).perform(scrollTo(), click())
+        val edited = awaitItems { it.singleOrNull()?.description == "Registro editado" }.single()
+        assertEquals(700_000L, edited.amountCents)
+        waitForItems(1, "Registro editado")
+        clickItemChild(R.id.deleteIcon)
         onView(withText("Sim")).perform(click())
-
-        Thread.sleep(2000L)
-
-        onView(withId(R.id.textViewFlowEdit)).check(matches(isDisplayed()))
+        awaitItems { it.isEmpty() }
+        waitForItems(0)
     }
 
-
-    fun clickWithId(id: Int): ViewAction {
-        //Clicar em um ícone dentro de um dos itens do RecyclerView
-
-        return object : ViewAction {
-            override fun getConstraints(): Matcher<View> {
-                return allOf(isDisplayed())
-            }
-
-            override fun getDescription(): String {
-                return "Clica em um filho específico de um item do RecyclerView"
-            }
-
-            override fun perform(uiController: UiController?, view: View) {
-                val childView = view.findViewById<View>(id)
-                childView?.performClick()
-            }
-        }
+    @Test fun createTransactionWithBrazilianAmount() {
+        onView(withId(R.id.floatingActionAddItem)).perform(click())
+        onView(withId(R.id.DescId)).perform(replaceText("Novo registro"), closeSoftKeyboard())
+        onView(withId(R.id.editValue)).perform(scrollTo(), replaceText("7.000"), closeSoftKeyboard())
+        onView(withId(R.id.textDateSelected)).perform(scrollTo(), click())
+        onView(withClassName(equalTo(DatePicker::class.java.name))).perform(PickerActions.setDate(year, 9, 16))
+        onView(withText("OK")).perform(click())
+        onView(withId(R.id.saveNote)).perform(scrollTo(), click())
+        val created = awaitItems { it.size == 2 }.single { it.description == "Novo registro" }
+        assertEquals(700_000L, created.amountCents)
+        assertEquals(year * 100 + 9, created.yearMonth)
+        waitForItems(2)
     }
 
-    fun createDatabaseItems(){
-        //criação de itens no banco de dados para teste
-
-        val items = listOf(
-            Items(1, "descrição", "observação", "Entrada",
-                "Pagamento à vista", 15_000, 1_739_145_600_000, 202502, "Transporte"),
-
-            Items(2, "descrição 2", "observação 2", "Saída",
-                "Pagamento à vista", -30_000, 1_740_009_600_000, 202502, "Outros"),
-
-            Items(3, "descrição 3", "observação 3", "Entrada",
-                "Pagamento à vista", 2_500, 1_742_083_200_000, 202503, "Saúde")
-        )
-
-        runBlocking {
-            itemsDao.insertAllItems(items)
-        }
-
+    private fun awaitItems(condition: (List<Items>) -> Boolean): List<Items> = runBlocking {
+        withTimeout(5_000) { itemsDao.getAllItems().first(condition) }
     }
 
+    private fun waitForItems(count: Int, description: String? = null) {
+        onView(withId(R.id.recyclerView)).perform(object : ViewAction {
+            override fun getConstraints() = isAssignableFrom(RecyclerView::class.java)
+            override fun getDescription() = "Wait for the asynchronous list update"
+            override fun perform(controller: UiController, view: View) {
+                val list = view as RecyclerView
+                val deadline = android.os.SystemClock.uptimeMillis() + 5_000
+                fun ready() = list.adapter?.itemCount == count &&
+                    (description == null || hasDescendant(withText(description)).matches(list))
+                while (!ready() && android.os.SystemClock.uptimeMillis() < deadline) {
+                    controller.loopMainThreadForAtLeast(16)
+                }
+                org.junit.Assert.assertTrue("List did not update", ready())
+            }
+        })
+    }
 
+    private fun clickItemChild(id: Int) {
+        onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0,
+            object : ViewAction {
+                override fun getConstraints() = isDisplayed()
+                override fun getDescription() = "Click a transaction action"
+                override fun perform(controller: UiController, view: View) { view.findViewById<View>(id).performClick() }
+            }))
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object TestDatabaseModule {
+        @Provides @Singleton fun database(@ApplicationContext context: Context): AppDatabase =
+            Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        @Provides fun dao(database: AppDatabase): ItemsDao = database.getItemsDao()
+    }
 }

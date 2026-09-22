@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
+import com.example.controledegastos.ui.configureDrawerBack
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -46,6 +48,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
         if (yearMonth / 100 <= 0 || yearMonth % 100 !in 1..12) { finish(); return }
         binding = ActivityFilterMonthBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configureSystemInsets()
 
         adapter = MyAdapter(this)
         binding.recyclerViewF.layoutManager = LinearLayoutManager(this)
@@ -62,7 +65,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
 
     private fun setupMonthHeader() {
         val year = yearMonth / 100
-        val monthName = DateFormatSymbols(Locale("pt", "BR")).months[yearMonth % 100 - 1]
+        val monthName = DateFormatSymbols(Locale.forLanguageTag("pt-BR")).months[yearMonth % 100 - 1]
         binding.monthTitle.text = getString(R.string.monthly_transactions_title, monthName, year.toString())
         viewModel.selectYear(year)
     }
@@ -83,6 +86,7 @@ class FilterMonthActivity : AppCompatActivity(), OnClickInterface {
 
     private fun setupDrawer() {
         drawer = binding.drawerLayoutFilter
+        configureDrawerBack(drawer)
         val toggle = ActionBarDrawerToggle(this, drawer, binding.toolbarF, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
         toggle.syncState()

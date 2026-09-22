@@ -5,7 +5,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 object Money {
-    private val brazil = Locale("pt", "BR")
+    private val brazil = Locale.forLanguageTag("pt-BR")
     private val inputPattern = Regex("(?:[0-9]+|[0-9]{1,3}(?:\\.[0-9]{3})+)(?:,[0-9]{1,2})?")
 
     fun format(cents: Long): String =

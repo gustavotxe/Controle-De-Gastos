@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
 import com.example.controledegastos.R
 import com.example.controledegastos.data.model.CategoryType
 import com.example.controledegastos.data.model.FlowType
@@ -32,6 +33,7 @@ class AddItem : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configureSystemInsets()
         setupSpinners()
         restoreEditingItem(savedInstanceState)
         setupDatePicker()
