@@ -1,63 +1,57 @@
-# Diretórios de build
-/build
-**/build/
+# Builds e caches do Gradle / Kotlin (todos os modulos)
+build/
+.gradle/
+.kotlin/
+out/
 
-# Arquivos locais de configuração do Android Studio
+# Configuracoes locais do Android Studio / IntelliJ
 .idea/
 *.iml
-
-# Diretórios de cache do Gradle
-.gradle/
-**/out/
-
-# Arquivos de cache do Kotlin
-.kotlin/
-
-# Arquivos de log
-*.log
-
-# Arquivos locais de execução
 local.properties
+.emulator_console_auth_token
 
-# Arquivos de chaves e senhas (importante)
+# Builds nativos do Android / NDK
+.cxx/
+.externalNativeBuild/
+obj/
+
+# Pacotes gerados e exportacoes do Android Studio
+*.apk
+*.aab
+*.apks
+/app/release/
+/app/debug/
+
+# Chaves de assinatura e configuracoes privadas
 *.keystore
 *.jks
-
-# Arquivos de banco de dados temporários
-*.db
-*.db-journal
-
-# Arquivos de ambiente e variáveis locais
+key.properties
+keystore.properties
+signing.properties
+secrets.properties
 .env
-
-# Arquivos de crashlytics / firebase
+.env.*
+!.env.example
+!.env.sample
+!.env.template
 crashlytics.properties
 fabric.properties
 
-# Arquivos gerados pelo sistema
+# Logs e bancos de dados locais
+*.log
+*.hprof
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Arquivos temporarios do sistema e editores
 .DS_Store
 Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
 
-# Arquivos de cache do Android Studio
-.cxx/
-.externalNativeBuild/
-.idea/caches
-.idea/libraries
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-
-# Arquivos de depuração do NDK
-obj/
-
-# Arquivos de auto-save do Android Studio
-.idea/gradle.xml
-.idea/misc.xml
-.idea/compiler.xml
-
-# Configurações de execução do Android Studio
-.idea/runConfigurations/
-
-# Configuração do local do emulador Android
-.emulator_console_auth_token
+# Manter versionados: Gradle Wrapper (incluindo o JAR), gradle.properties,
+# schemas do Room, testes, README, docs e imagens do portfolio.
