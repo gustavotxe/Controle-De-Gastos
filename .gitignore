@@ -1,5 +1,4 @@
-# Builds e caches do Gradle / Kotlin (todos os modulos)
-build/
+# Builds e caches do Gradle / Kotlin
 .gradle/
 .kotlin/
 out/
@@ -52,6 +51,3 @@ Desktop.ini
 *.swp
 *.swo
 *~
-
-# Manter versionados: Gradle Wrapper (incluindo o JAR), gradle.properties,
-# schemas do Room, testes, README, docs e imagens do portfolio.
