@@ -11,7 +11,7 @@ import com.example.controledegastos.ui.model.Money
 import com.example.controledegastos.ui.model.TransactionFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import com.example.controledegastos.di.AppDispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -47,7 +47,8 @@ data class AnnualChartUiState(
 class ItemsViewModel @Inject constructor(
     private val itemsRepository: ItemsDataSource,
     private val yearSelectionRepository: YearSelectionRepository,
-    private val savedStateHandle: SavedStateHandle = SavedStateHandle()
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
+    private val dispatchers: AppDispatchers = AppDispatchers()
 ) : ViewModel() {
 
     private val mainFilter = savedStateHandle.getStateFlow("main_filter", TransactionFilter.ALL)
@@ -60,7 +61,7 @@ class ItemsViewModel @Inject constructor(
     val mainUiState: StateFlow<TransactionsUiState> = mainFilter
         .combine(selectedYear) { filter, year -> filter to year }
         .flatMapLatest { (filter, year) -> filter.toYearItemsFlow(year).map { it.toUiState(filter) } }
-        .flowOn(Dispatchers.Default)
+        .flowOn(dispatchers.computation)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
 
     val monthUiState: StateFlow<TransactionsUiState> = combine(monthPeriod, monthFilter, selectedYear) { period, filter, year ->
@@ -69,7 +70,7 @@ class ItemsViewModel @Inject constructor(
         .flatMapLatest { (period, filter) ->
             (period?.let { filter.toMonthItemsFlow(it) } ?: flowOf(emptyList())).map { it.toUiState(filter) }
         }
-        .flowOn(Dispatchers.Default)
+        .flowOn(dispatchers.computation)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
 
     val annualChartState: StateFlow<AnnualChartUiState> = selectedYear
@@ -79,7 +80,7 @@ class ItemsViewModel @Inject constructor(
             val outflow = items.filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
             AnnualChartUiState(inflow, outflow, inflow + outflow)
         }
-        .flowOn(Dispatchers.Default)
+        .flowOn(dispatchers.computation)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnnualChartUiState())
 
     fun selectMainFilter(filter: TransactionFilter) { savedStateHandle["main_filter"] = filter }
@@ -98,12 +99,12 @@ class ItemsViewModel @Inject constructor(
         if (monthPeriod.value != yearMonth) applyMonthFilter(yearMonth)
     }
 
-    fun insertItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.insertItem(item) }
-    fun updateItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.updateItem(item) }
-    fun deleteItem(id: Int) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItem(id) }
+    fun insertItem(item: Items) = viewModelScope.launch(dispatchers.io) { itemsRepository.insertItem(item) }
+    fun updateItem(item: Items) = viewModelScope.launch(dispatchers.io) { itemsRepository.updateItem(item) }
+    fun deleteItem(id: Int) = viewModelScope.launch(dispatchers.io) { itemsRepository.deleteItem(id) }
     fun deleteItemMonth(yearMonth: Int) {
         val selectedYearMonth = selectedYear.value * 100 + (yearMonth % 100)
-        viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItemMonth(selectedYearMonth) }
+        viewModelScope.launch(dispatchers.io) { itemsRepository.deleteItemMonth(selectedYearMonth) }
     }
 
     private fun TransactionFilter.toYearItemsFlow(year: Int): Flow<List<Items>> = when {

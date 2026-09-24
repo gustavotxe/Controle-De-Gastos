@@ -1,10 +1,8 @@
 package com.example.controledegastos.features
 
-import android.content.Context
 import android.view.View
 import android.widget.DatePicker
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
@@ -24,18 +22,10 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.example.controledegastos.R
 import com.example.controledegastos.data.local.dao.ItemsDao
-import com.example.controledegastos.data.local.database.AppDatabase
-import com.example.controledegastos.data.local.database.DatabaseModule
+import com.example.controledegastos.database.HiltDatabaseTest
 import com.example.controledegastos.data.model.Items
 import com.example.controledegastos.ui.features.home.MainActivity
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -43,24 +33,19 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import java.util.Calendar
 import javax.inject.Inject
-import javax.inject.Singleton
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import kotlin.time.Duration.Companion.milliseconds
 
-/** CRUD regression tests use an isolated in-memory database, never the installed user's data. */
 @HiltAndroidTest
-@UninstallModules(DatabaseModule::class)
-class MainActivityTest {
-    @get:Rule val hiltRule = HiltAndroidRule(this)
+class MainActivityTest : HiltDatabaseTest() {
     @Inject lateinit var itemsDao: ItemsDao
-    @Inject lateinit var database: AppDatabase
     private lateinit var scenario: ActivityScenario<MainActivity>
     private val year = Calendar.getInstance().get(Calendar.YEAR)
 
     @Before fun setup() {
-        hiltRule.inject()
         runBlocking { itemsDao.insertItem(Items(1, "Registro de teste", "Observação", "Entrada",
             "Pagamento à vista", 15_000, Calendar.getInstance().timeInMillis, year * 100 + 9, "Salário")) }
         scenario = ActivityScenario.launch(MainActivity::class.java)
@@ -68,8 +53,7 @@ class MainActivityTest {
     }
 
     @After fun tearDown() {
-        scenario.close()
-        database.close()
+        if (::scenario.isInitialized) scenario.close()
     }
 
     @Test fun recyclerViewDisplaysPersistedAmount() {
@@ -87,7 +71,7 @@ class MainActivityTest {
         assertEquals(700_000L, edited.amountCents)
         waitForItems(1, "Registro editado")
         clickItemChild(R.id.deleteIcon)
-        onView(withText("Sim")).perform(click())
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
         awaitItems { it.isEmpty() }
         waitForItems(0)
     }
@@ -98,7 +82,7 @@ class MainActivityTest {
         onView(withId(R.id.editValue)).perform(scrollTo(), replaceText("7.000"), closeSoftKeyboard())
         onView(withId(R.id.textDateSelected)).perform(scrollTo(), click())
         onView(withClassName(equalTo(DatePicker::class.java.name))).perform(PickerActions.setDate(year, 9, 16))
-        onView(withText("OK")).perform(click())
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click())
         onView(withId(R.id.saveNote)).perform(scrollTo(), click())
         val created = awaitItems { it.size == 2 }.single { it.description == "Novo registro" }
         assertEquals(700_000L, created.amountCents)
@@ -107,7 +91,7 @@ class MainActivityTest {
     }
 
     private fun awaitItems(condition: (List<Items>) -> Boolean): List<Items> = runBlocking {
-        withTimeout(5_000) { itemsDao.getAllItems().first(condition) }
+        withTimeout(5000.milliseconds) { itemsDao.getAllItems().first(condition) }
     }
 
     private fun waitForItems(count: Int, description: String? = null) {
@@ -132,15 +116,11 @@ class MainActivityTest {
             object : ViewAction {
                 override fun getConstraints() = isDisplayed()
                 override fun getDescription() = "Click a transaction action"
-                override fun perform(controller: UiController, view: View) { view.findViewById<View>(id).performClick() }
+                override fun perform(controller: UiController, view: View) {
+                    click().perform(controller, view.findViewById(id))
+                    controller.loopMainThreadUntilIdle()
+                }
             }))
     }
 
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object TestDatabaseModule {
-        @Provides @Singleton fun database(@ApplicationContext context: Context): AppDatabase =
-            Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-        @Provides fun dao(database: AppDatabase): ItemsDao = database.getItemsDao()
-    }
 }

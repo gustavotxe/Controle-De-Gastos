@@ -83,16 +83,17 @@
                 android:layout_height="wrap_content"
                 android:text="@string/amount"
                 android:labelFor="@id/editValue" />
+
             <EditText
                 android:id="@+id/editValue"
                 style="@style/Ui.Field"
+                android:digits="0123456789,."
                 android:hint="@string/amount_hint"
+                android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="numberDecimal"
-                android:digits="0123456789,."
-                android:maxLength="64"
-                android:textSize="28sp"
-                android:imeOptions="actionNext" />
+                android:maxLength="14"
+                android:textSize="28sp" />
             <TextView
                 style="@style/Ui.Caption"
                 android:layout_width="match_parent"

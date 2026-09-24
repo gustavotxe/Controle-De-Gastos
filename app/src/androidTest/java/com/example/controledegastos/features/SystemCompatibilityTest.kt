@@ -26,17 +26,13 @@ import com.example.controledegastos.ui.features.help.HelpActivity
 import com.example.controledegastos.ui.features.home.MainActivity
 import com.example.controledegastos.ui.features.months.FilterMonthActivity
 import com.example.controledegastos.ui.features.months.MonthsActivity
-import dagger.hilt.android.testing.HiltAndroidRule
+import com.example.controledegastos.database.HiltDatabaseTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @HiltAndroidTest
-class SystemCompatibilityTest {
-    @get:Rule val hilt = HiltAndroidRule(this)
-    @Before fun setup() = hilt.inject()
+class SystemCompatibilityTest : HiltDatabaseTest() {
 
     @Test fun systemBackClosesDrawerWithoutLeavingScreen() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -79,6 +75,8 @@ class SystemCompatibilityTest {
                     content.getChildAt(0).getGlobalVisibleRect(bounds)
                     assertTrue("${screen.simpleName}: top", bounds.top >= safe.top)
                     assertTrue("${screen.simpleName}: bottom", bounds.bottom <= activity.window.decorView.height - safe.bottom)
+                    assertTrue("${screen.simpleName}: left", bounds.left >= safe.left)
+                    assertTrue("${screen.simpleName}: right", bounds.right <= activity.window.decorView.width - safe.right)
                     assertTrue("${screen.simpleName}: usable height", bounds.height() > 0)
                 }
             }

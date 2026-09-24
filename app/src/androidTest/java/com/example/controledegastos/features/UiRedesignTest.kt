@@ -41,23 +41,15 @@ import com.example.controledegastos.ui.features.help.HelpActivity
 import com.example.controledegastos.ui.features.home.MainActivity
 import com.example.controledegastos.ui.features.months.MonthsActivity
 import com.example.controledegastos.ui.features.months.FilterMonthActivity
-import dagger.hilt.android.testing.HiltAndroidRule
+import com.example.controledegastos.database.HiltDatabaseTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Matchers.equalTo
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 
-/** Exercises the XML screens without modifying the user's transactions. */
 @HiltAndroidTest
-class UiRedesignTest {
-    @get:Rule
-    val hiltRule = HiltAndroidRule(this)
-
-    @Before
-    fun inject() = hiltRule.inject()
+class UiRedesignTest : HiltDatabaseTest() {
 
     @Test
     fun longTransactionCardsUseBoundedPreviewsAndScreensRecreate() {
@@ -148,7 +140,7 @@ class UiRedesignTest {
     }
 
     @Test
-    fun backupScreenIsAccessibleAfterRecreation() {
+    fun backupButtonsAndReadyStatusSurviveRecreation() {
         ActivityScenario.launch(com.example.controledegastos.ui.features.backup.BackupActivity::class.java).use { scenario ->
             onView(withId(R.id.exportButton)).perform(scrollTo()).check(matches(isDisplayed()))
             onView(withId(R.id.importButton)).perform(scrollTo()).check(matches(isDisplayed()))

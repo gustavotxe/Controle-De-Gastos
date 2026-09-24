@@ -28,7 +28,6 @@ import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 
-/** Uses an isolated in-memory database and private temporary files, never the app's history. */
 @RunWith(AndroidJUnit4::class)
 class BackupRepositoryTest {
     private lateinit var database: AppDatabase
@@ -47,7 +46,7 @@ class BackupRepositoryTest {
 
     @After fun cleanup() { database.close(); file.delete() }
 
-    @Test fun exportIncludesAllYearsInOrderAndPreservesExactValues() = runBlocking {
+    @Test fun exportAllYearsInOrderAndPreservesExactValues() = runBlocking {
         val earlier = sample.copy(id = 7, yearMonth = 202201, occurredAtMillis = 1640995200000L,
             io = "Saída", amountCents = -12345, description = "")
         val later = sample.copy(id = 8)
@@ -75,7 +74,11 @@ class BackupRepositoryTest {
         database.getItemsDao().insertItem(sample)
         val before = database.getItemsDao().getBackupSnapshot()
         codec.write(file.writer(), listOf(sample.copy(description = "Novo"), sample)) {}
-        file.writeText(file.readText().replace("\"yearMonth\": 202409", "\"yearMonth\": 202413"))
+        val json = file.readText()
+        val lastMonth = json.lastIndexOf("\"yearMonth\": 202409")
+        assertTrue("Fixture must contain the last record's month", lastMonth >= 0)
+        file.writeText(json.replaceRange(lastMonth, lastMonth + "\"yearMonth\": 202409".length,
+            "\"yearMonth\": 202413"))
         try {
             repository.import(Uri.fromFile(file))
             fail("Invalid month accepted")

@@ -13,24 +13,11 @@ import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 
 @Module
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [DatabaseModule::class]
-)
+@TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class])
 object TestDatabaseModule {
+    @Provides @Singleton
+    fun database(@ApplicationContext context: Context): AppDatabase =
+        Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
 
-    @Provides
-    @Singleton
-    fun provideInMemoryDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.inMemoryDatabaseBuilder(
-            context,
-            AppDatabase::class.java
-        ).allowMainThreadQueries()
-            .build()
-    }
-
-    @Provides
-    fun provideUserDao(database: AppDatabase): ItemsDao {
-        return database.getItemsDao()
-    }
+    @Provides fun dao(database: AppDatabase): ItemsDao = database.getItemsDao()
 }

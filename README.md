@@ -73,8 +73,12 @@ Nesta aplicação o usuário é capaz de registrar todas as suas entradas e saí
 - **Versão do Gradle** — 9.3.1
 - **JDK** — 17
 
+## Testes
+
+Consulte [o guia de testes](docs/TESTING.md) para executar as suítes locais e
+instrumentadas, entender o isolamento e verificar a migração do banco.
+
 ## 📫 Contato
 
 - Email: gustavoteixeira.ggt@gmail.com
-
 

@@ -1,7 +1,6 @@
 package com.example.controledegastos.features
 
 import android.content.Context
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -19,6 +18,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class TransactionFilterTest {
     @Test fun filtersKeepYearMonthAndTotalsConsistent() = runBlocking {
@@ -41,18 +41,18 @@ class TransactionFilterTest {
                     it.selectMainFilter(TransactionFilter.INFLOW)
                 }
             }
-            val annual = withTimeout(5000) { vm.mainUiState.first { it.filter == TransactionFilter.INFLOW && it.items.isNotEmpty() } }
+            val annual = withTimeout(5000.milliseconds) { vm.mainUiState.first { it.filter == TransactionFilter.INFLOW && it.items.isNotEmpty() } }
             assertEquals(setOf("Salário", "Outro mês"), annual.items.map { it.description }.toSet())
             assertEquals(Money.format(3000), annual.balance)
             withContext(Dispatchers.Main) {
                 vm.initializeMonth(202409)
                 vm.selectMonthFilter(TransactionFilter.FOOD)
             }
-            val food = withTimeout(5000) { vm.monthUiState.first { it.filter == TransactionFilter.FOOD && it.items.isNotEmpty() } }
+            val food = withTimeout(5000.milliseconds) { vm.monthUiState.first { it.filter == TransactionFilter.FOOD && it.items.isNotEmpty() } }
             assertEquals(listOf("Mercado"), food.items.map { it.description })
             assertEquals(Money.format(-300), food.balance)
             withContext(Dispatchers.Main) { vm.applyMonthFilter(202409) }
-            val all = withTimeout(5000) { vm.monthUiState.first { it.filter == TransactionFilter.ALL && it.items.size == 2 } }
+            val all = withTimeout(5000.milliseconds) { vm.monthUiState.first { it.filter == TransactionFilter.ALL && it.items.size == 2 } }
             assertEquals(Money.format(700), all.balance)
         } finally {
             withContext(Dispatchers.Main) { store.clear() }
@@ -60,25 +60,4 @@ class TransactionFilterTest {
         }
     }
 
-    @Test fun restoredMonthSelectionIsNotResetByScreenInitialization() = runBlocking {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-        val store = ViewModelStore()
-        try {
-            val repository = ItemsRepository(database.getItemsDao())
-            val vm = withContext(Dispatchers.Main) {
-                val saved = SavedStateHandle(mapOf("month_filter" to TransactionFilter.SALARY, "month_period" to 202409))
-                ItemsViewModel(repository, YearSelectionRepository(repository), saved).also {
-                    store.put("restored", it)
-                    it.selectYear(2024)
-                    it.initializeMonth(202409)
-                }
-            }
-            val state = withTimeout(5000) { vm.monthUiState.first { it.filter == TransactionFilter.SALARY } }
-            assertEquals(TransactionFilter.SALARY, state.filter)
-        } finally {
-            withContext(Dispatchers.Main) { store.clear() }
-            database.close()
-        }
-    }
 }

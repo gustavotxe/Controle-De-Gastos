@@ -8,7 +8,7 @@ import com.example.controledegastos.data.repository.YearSelectionRepository
 import com.example.controledegastos.ui.model.MonthSummaryUi
 import com.example.controledegastos.ui.model.Money
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import com.example.controledegastos.di.AppDispatchers
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +23,8 @@ import kotlinx.coroutines.flow.stateIn
 @OptIn(ExperimentalCoroutinesApi::class)
 class MonthsViewModel @Inject constructor(
     repository: ItemsDataSource,
-    private val yearSelectionRepository: YearSelectionRepository
+    private val yearSelectionRepository: YearSelectionRepository,
+    private val dispatchers: AppDispatchers = AppDispatchers()
 ) : ViewModel() {
     val availableYears: Flow<List<Int>> = yearSelectionRepository.availableYears
     val selectedYear = yearSelectionRepository.selectedYear
@@ -49,7 +50,7 @@ class MonthsViewModel @Inject constructor(
                 )
             }
         }
-        .flowOn(Dispatchers.Default)
+        .flowOn(dispatchers.computation)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun selectYear(year: Int) = yearSelectionRepository.selectYear(year)
