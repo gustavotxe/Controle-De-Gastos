@@ -2,300 +2,187 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA"
-    android:orientation="vertical"
-    tools:context=".ui.features.additem.AddItem">
-
-  <androidx.appcompat.widget.Toolbar
-      android:id="@+id/toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:background="@drawable/gradientcolor"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:titleTextColor="#FFFFFF">
-
-    <TextView
-        android:id="@+id/toolbar_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Adicionar Item"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        tools:layout_editor_absoluteX="160dp"
-        tools:layout_editor_absoluteY="15dp" />
-
-    <ImageView
-        android:id="@+id/backIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:srcCompat="@drawable/arrow_back_24" />
-
-  </androidx.appcompat.widget.Toolbar>
-
-
-
-  <ScrollView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
-
-    <LinearLayout
+    android:orientation="vertical">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/brand"
+        app:contentInsetStart="8dp">
+        <ImageView
+            android:id="@+id/backIcon"
+            style="@style/Ui.Back"
+            app:srcCompat="@drawable/arrow_back_24"
+            android:contentDescription="@string/back" />
+        <TextView
+            android:id="@+id/toolbar_title"
+            style="@style/Ui.Section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/new_transaction"
+            android:textColor="@color/white" />
+    </androidx.appcompat.widget.Toolbar>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true"
+            android:padding="24dp">
+            <TextView
+                style="@style/Ui.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/form_hint" />
+            <TextView
+                android:id="@+id/textViewIO"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/flow"
+                android:labelFor="@id/spinnerIO" />
+            <Spinner
+                android:id="@+id/spinnerIO"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/field_background"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:spinnerMode="dropdown" />
+            <TextView
+                android:id="@+id/textViewFlowEdit"
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/textView5"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/description"
+                android:labelFor="@id/DescId" />
+            <EditText
+                android:id="@+id/DescId"
+                style="@style/Ui.Field"
+                android:hint="@string/description_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences"
+                android:maxLength="120"
+                android:imeOptions="actionNext" />
+            <TextView
+                android:id="@+id/textViewValor"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/amount"
+                android:labelFor="@id/editValue" />
 
-      <TextView
-          android:id="@+id/textViewIO"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Entrada/Saída:"
-          android:textStyle="bold"
-          android:textSize="22sp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-      <TextView
-          android:id="@+id/textViewFlowEdit"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="3dp"
-          android:text=" "
-          android:contentDescription="Entrada/Saída"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="parent" />
-
-      <Spinner
-          android:id="@+id/spinnerIO"
-          android:layout_width="match_parent"
-          android:layout_height="48dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="10dp"
-          android:layout_marginEnd="45dp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textViewIO" />
-
-      <TextView
-          android:id="@+id/textView5"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Descrição:"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/spinnerIO" />
-
-      <EditText
-          android:id="@+id/DescId"
-          android:layout_width="match_parent"
-          android:layout_height="48dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          android:autofillHints="username"
-          android:background="@drawable/background_layout"
-          android:gravity="center"
-          android:hint="Descrição..."
-          android:inputType="textCapSentences"
-          android:maxLength="120"
-          android:padding="10dp"
-          android:textColor="@color/black"
-          android:textSize="15sp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView5" />
-
-      <TextView
-          android:id="@+id/textViewPay"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Método de Pagamento:"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/DescId" />
-
-      <Spinner
-          android:id="@+id/spinnerPayment"
-          android:layout_width="match_parent"
-          android:layout_height="48dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-      <TextView
-          android:id="@+id/textViewValor"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Valor:"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/spinnerPayment" />
-
-      <EditText
-          android:id="@+id/editValue"
-          android:layout_width="match_parent"
-          android:layout_height="48dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          android:background="@drawable/background_layout"
-          android:digits="0123456789,."
-          android:ems="10"
-          android:gravity="center"
-          android:maxLength="14"
-          android:hint="Ex: 1500,00"
-          android:inputType="text"
-          android:paddingLeft="16dp"
-          android:textSize="15sp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView7" />
-
-      <TextView
-          android:id="@+id/textViewCategory"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Categoria:"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"/>
-
-      <Spinner
-          android:id="@+id/spinnerCategory"
-          android:layout_width="match_parent"
-          android:layout_height="48dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent" />
-
-      <TextView
-          android:id="@+id/textViewDate"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Clique para adicionar uma data"
-          android:textSize="15sp"
-          android:textStyle="italic"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/editValue" />
-
-      <TextView
-          android:id="@+id/textDateSelected"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:gravity="center"
-          android:text="--/--/----"
-          android:textSize="17dp"
-          android:textStyle="bold|italic" />
-
-      <TextView
-          android:id="@+id/textView9"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="20dp"
-          android:text="Observação:"
-          android:textStyle="bold"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/spinnerMonth" />
-
-      <EditText
-          android:id="@+id/ObsId"
-          android:layout_width="match_parent"
-          android:layout_height="96dp"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          android:layout_marginBottom="10dp"
-          android:autofillHints="name"
-          android:background="@drawable/background_layout"
-          android:gravity="center"
-          android:padding="14dp"
-          android:maxLength="650"
-          android:hint="Digite uma observação..."
-          android:inputType="text|textMultiLine"
-          android:textColor="@color/black"
-          android:textSize="15sp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0.0"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/textView9" />
-
-      <Button
-          android:id="@+id/saveNote"
-          android:layout_width="match_parent"
-          android:layout_height="55dp"
-          android:layout_alignParentBottom="true"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="20dp"
-          android:layout_marginEnd="45dp"
-          android:backgroundTint="#0095FE"
-          android:text="ADICIONAR"
-          android:textSize="13sp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/ObsId" />
-
-      <Button
-          android:id="@+id/buttonCancel"
-          android:layout_width="match_parent"
-          android:layout_height="55dp"
-          android:layout_alignParentBottom="true"
-          android:layout_marginStart="45dp"
-          android:layout_marginTop="10dp"
-          android:layout_marginEnd="45dp"
-          android:backgroundTint="#950101"
-          android:text="CANCELAR"
-          android:textSize="13sp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/ObsId"
-          android:visibility="invisible"/>
-
-      <Space
-          android:layout_width="match_parent"
-          android:layout_height="10dp" />
-
-
-    </LinearLayout>
+            <EditText
+                android:id="@+id/editValue"
+                style="@style/Ui.Field"
+                android:digits="0123456789,."
+                android:hint="@string/amount_hint"
+                android:imeOptions="actionNext"
+                android:importantForAutofill="no"
+                android:inputType="numberDecimal"
+                android:maxLength="14"
+                android:textSize="28sp" />
+            <TextView
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/amount_format_hint" />
+            <TextView
+                android:id="@+id/textViewPay"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/payment"
+                android:labelFor="@id/spinnerPayment" />
+            <Spinner
+                android:id="@+id/spinnerPayment"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/field_background"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:spinnerMode="dropdown" />
+            <TextView
+                android:id="@+id/textViewCategory"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/category"
+                android:labelFor="@id/spinnerCategory" />
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/field_background"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:spinnerMode="dropdown" />
+            <TextView
+                android:id="@+id/textViewDate"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:minHeight="48dp"
+                android:gravity="center_vertical"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true" />
+            <TextView
+                android:id="@+id/textDateSelected"
+                style="@style/Ui.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date_placeholder"
+                android:minHeight="56dp"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@drawable/field_background"
+                android:focusable="true"
+                app:drawableEndCompat="@drawable/baseline_calendar_month"
+                app:drawableTint="@color/brand" />
+            <TextView
+                android:id="@+id/textView9"
+                style="@style/Ui.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/notes"
+                android:labelFor="@id/ObsId" />
+            <EditText
+                android:id="@+id/ObsId"
+                style="@style/Ui.Field"
+                android:hint="@string/notes_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="3"
+                android:maxLength="650"
+                android:gravity="top|start" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/save_transaction" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonCancel"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/cancel"
+                android:visibility="gone" />
+        </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
-
-
-
-
-

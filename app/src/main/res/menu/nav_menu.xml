@@ -13,7 +13,7 @@
 
         <item
             android:id="@+id/nav_calendar"
-            android:title="Total de Lançamentos Mensais"
+            android:title="@string/months_title"
             android:icon="@drawable/baseline_calendar_month"
             android:padding="10dp" />
 
@@ -21,7 +21,7 @@
             android:id="@+id/nav_resumo"
             android:icon="@drawable/baseline_table_view_24"
             android:padding="10dp"
-            android:title="Total de Lançamentos" />
+            android:title="@string/annual_title" />
 
     </group>
 
@@ -114,6 +114,9 @@
 
     <item android:title="Configurações">
         <menu>
+            <item android:id="@+id/nav_backup"
+                android:icon="@drawable/baseline_table_view_24"
+                android:title="@string/backup_title" />
             <item
                 android:id="@+id/nav_help"
                 android:icon="@drawable/baseline_question_mark_24"
@@ -130,6 +133,3 @@
 
 
 </menu>
-
-
-      

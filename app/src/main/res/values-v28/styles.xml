@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Ui.Title" parent="Ui.Title.Base">
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+    <style name="Ui.Section" parent="Ui.Section.Base">
+        <item name="android:accessibilityHeading">true</item>
+    </style>
+</resources>

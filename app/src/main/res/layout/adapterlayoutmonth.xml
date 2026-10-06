@@ -1,171 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardViewadapter"
+    style="@style/Ui.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="25dp"
-    app:cardElevation="8dp">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_marginBottom="16dp"
+    android:clickable="true"
+    android:focusable="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+        <TextView
+            android:id="@+id/textViewMonth"
+            style="@style/Ui.Section"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pie_Chart"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:importantForAccessibility="no"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/inflow"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/text_Inflow"
-                android:layout_width="wrap_content"
+                style="@style/Ui.Value"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="18dp"
-                android:text="R$ 150,00"
-                android:textColor="#358338"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintStart_toEndOf="@+id/textView3"
-                app:layout_constraintTop_toBottomOf="@+id/pie_Chart" />
-
+                android:textColor="@color/chartGreen"
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textViewMonth"
-                android:layout_width="wrap_content"
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Janeiro"
-                android:textColor="#121D5C"
-                android:textSize="18sp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:layout_marginTop="18dp"
-                android:text="Entrada:"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintStart_toEndOf="@+id/imageView"
-                app:layout_constraintTop_toBottomOf="@+id/pie_Chart" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:layout_marginTop="8dp"
-                android:text="Saída:"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintStart_toEndOf="@+id/imageView2"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-            <TextView
-                android:id="@+id/textView10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="7dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="27dp"
-                android:text="Saldo:"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageView3"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                android:layout_marginTop="12dp"
+                android:text="@string/outflow"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/text_Outflow"
-                android:layout_width="wrap_content"
+                style="@style/Ui.Value"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="7dp"
-                android:text="R$ 150,00"
-                android:textColor="#C61616"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintStart_toEndOf="@+id/textView4"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+                android:textColor="@color/chartRed"
+                android:textSize="16sp" />
+
+            <TextView
+                style="@style/Ui.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/balance"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/text_Balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="7dp"
-                android:text="R$ 150,00"
-                android:textColor="#192363"
-                android:textSize="15sp"
-                android:textStyle="italic"
-                app:layout_constraintStart_toEndOf="@+id/textView10"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="19dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/pie_Chart"
-                app:srcCompat="@drawable/arrowiconinflow" />
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"
-                app:srcCompat="@drawable/arrowiconoutflow" />
-
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="19dp"
-                android:layout_height="19dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="9dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView4"
-                app:srcCompat="@drawable/equalicon" />
-
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pie_Chart"
+                style="@style/Ui.Value"
                 android:layout_width="match_parent"
-                android:layout_height="350dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewMonth">
-
-            </com.github.mikephil.charting.charts.PieChart>
-
-            <TextView
-                android:id="@+id/textView_details"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="27dp"
-                android:text="Clique para ver detalhes"
-                android:textColor="#272727"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:textColor="@color/brand"
+                android:textSize="16sp" />
+        </LinearLayout>
 
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/textView_details"
+            style="@style/Ui.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:text="@string/month_details"
+            android:textColor="@color/brand"
+            android:textSize="14sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

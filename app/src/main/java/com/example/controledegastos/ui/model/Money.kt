@@ -1,16 +1,28 @@
 package com.example.controledegastos.ui.model
 
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.text.NumberFormat
+import java.util.Locale
 
 object Money {
-    fun format(cents: Long): String = NumberFormat.getCurrencyInstance().format(cents / 100.0)
+    private val brazil = Locale.forLanguageTag("pt-BR")
+    private val inputPattern = Regex("(?:[0-9]+|[0-9]{1,3}(?:\\.[0-9]{3})+)(?:,[0-9]{1,2})?")
 
-    fun parseToCents(value: String): Long? = runCatching {
-        BigDecimal(value.trim().replace(',', '.'))
-            .movePointRight(2)
-            .setScale(0, RoundingMode.HALF_UP)
-            .longValueExact()
-    }.getOrNull()
+    fun format(cents: Long): String =
+        NumberFormat.getCurrencyInstance(brazil).format(BigDecimal.valueOf(cents, 2))
+
+    fun formatInput(cents: Long): String =
+        BigDecimal.valueOf(cents, 2).abs().toPlainString().replace('.', ',')
+
+    fun parseToCents(value: String): Long? {
+        if (value.length > 64) return null
+        val input = value.trim()
+        if (!inputPattern.matches(input)) return null
+        return try {
+            BigDecimal(input.replace(".", "").replace(',', '.'))
+                .movePointRight(2).longValueExact()
+        } catch (_: ArithmeticException) {
+            null
+        }
+    }
 }

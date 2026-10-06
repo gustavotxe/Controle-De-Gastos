@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.controledegastos.ui.configureSystemInsets
+import com.example.controledegastos.R
 import com.example.controledegastos.data.model.CategoryType
 import com.example.controledegastos.data.model.FlowType
 import com.example.controledegastos.data.model.Items
@@ -31,6 +33,7 @@ class AddItem : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        configureSystemInsets()
         setupSpinners()
         restoreEditingItem(savedInstanceState)
         setupDatePicker()
@@ -40,31 +43,40 @@ class AddItem : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        binding.spinnerIO.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, FlowType.entries.map { it.value })
-        binding.spinnerPayment.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, PAYMENT_METHODS)
-        binding.spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, CategoryType.valuesList)
+        binding.spinnerIO.adapter = fieldAdapter(FlowType.entries.map { it.value })
+        binding.spinnerPayment.adapter = fieldAdapter(PAYMENT_METHODS)
+        binding.spinnerCategory.adapter = fieldAdapter(CategoryType.valuesList)
     }
+
+    private fun fieldAdapter(values: List<String>) =
+        ArrayAdapter(this, R.layout.spinner_field_item, values).apply {
+            setDropDownViewResource(R.layout.spinner_dropdown_item)
+        }
 
     private fun restoreEditingItem(savedState: Bundle?) {
         editingId = savedState?.getInt(STATE_ID)?.takeIf { it > 0 } ?: intent.getIntExtra(EXTRA_ID, -1).takeIf { it > 0 }
         val dateMillis = savedState?.getLong(STATE_DATE) ?: intent.getLongExtra(EXTRA_DATE, 0L)
         dateSelected = savedState?.getBoolean(STATE_DATE_SELECTED) ?: (dateMillis > 0)
         if (dateSelected) calendar.timeInMillis = dateMillis
+
         binding.DescId.setText(savedState?.getString(STATE_DESCRIPTION) ?: intent.getStringExtra(EXTRA_DESCRIPTION).orEmpty())
         binding.ObsId.setText(savedState?.getString(STATE_OBSERVATION) ?: intent.getStringExtra(EXTRA_OBSERVATION).orEmpty())
-        binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: editingAmount())
+        binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: if (editingId != null) editingAmount() else "")
+
         select(binding.spinnerIO, savedState?.getString(STATE_FLOW) ?: intent.getStringExtra(EXTRA_FLOW).orEmpty())
         select(binding.spinnerPayment, savedState?.getString(STATE_PAYMENT) ?: intent.getStringExtra(EXTRA_PAYMENT).orEmpty())
         select(binding.spinnerCategory, savedState?.getString(STATE_CATEGORY) ?: intent.getStringExtra(EXTRA_CATEGORY).orEmpty())
+
         if (dateSelected) updateDate()
         if (editingId == null) return
 
-        binding.saveNote.text = "EDITAR"
+        binding.toolbarTitle.setText(R.string.edit_transaction)
+        binding.saveNote.setText(R.string.save_changes)
         binding.buttonCancel.visibility = View.VISIBLE
     }
 
     private fun editingAmount(): String =
-        (intent.getLongExtra(EXTRA_AMOUNT_CENTS, 0L) / 100.0).toString().replace('.', ',')
+        Money.formatInput(intent.getLongExtra(EXTRA_AMOUNT_CENTS, 0L))
 
     private fun select(spinner: android.widget.Spinner, value: String) {
         val position = (0 until spinner.count).firstOrNull { spinner.getItemAtPosition(it) == value } ?: -1
@@ -88,7 +100,11 @@ class AddItem : AppCompatActivity() {
 
     private fun save() {
         val amount = Money.parseToCents(binding.editValue.text.toString())
-        if (amount == null || amount <= 0) return showError("Insira um valor válido.")
+        if (amount == null || amount <= 0) {
+            binding.editValue.error = getString(R.string.amount_invalid_brl)
+            binding.editValue.requestFocus()
+            return
+        }
         if (binding.textDateSelected.text == "--/--/----") return showError("Insira uma data válida.")
         val flow = binding.spinnerIO.selectedItem.toString()
         val signedAmount = if (flow == FlowType.OUTFLOW.value) -amount else amount
@@ -150,7 +166,7 @@ class AddItem : AppCompatActivity() {
             putExtra(EXTRA_OBSERVATION, item.observation)
             putExtra(EXTRA_FLOW, item.io)
             putExtra(EXTRA_PAYMENT, item.paymentMethod)
-            putExtra(EXTRA_AMOUNT_CENTS, kotlin.math.abs(item.amountCents))
+            putExtra(EXTRA_AMOUNT_CENTS, item.amountCents)
             putExtra(EXTRA_DATE, item.occurredAtMillis)
             putExtra(EXTRA_CATEGORY, item.category)
         }

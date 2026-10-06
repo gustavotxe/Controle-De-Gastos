@@ -1,142 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".ui.features.bardata.BarDataActivity">
-
+    android:orientation="vertical">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarGratMonth"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradientcolor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="#FFFFFF">
-
-        <TextView
-            android:id="@+id/toolbar_grat_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Total de lançamentos"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            tools:layout_editor_absoluteX="160dp"
-            tools:layout_editor_absoluteY="15dp" />
-
-        <Spinner
-            android:id="@+id/yearSpinner"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
-            android:layout_gravity="end|center_vertical"
-            android:backgroundTint="@color/white"
-            android:dropDownWidth="150dp"
-            android:popupBackground="@color/chartBlue" />
-
+        android:background="@color/brand"
+        app:contentInsetStart="8dp"
+        app:contentInsetEnd="12dp"
+        app:titleTextColor="@color/white">
         <ImageView
             android:id="@+id/backIconGratActivity"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            style="@style/Ui.Back"
             android:layout_gravity="start"
-            app:srcCompat="@drawable/arrow_back_24" />
-
+            app:srcCompat="@drawable/arrow_back_24"
+            android:contentDescription="@string/back" />
+        <Spinner
+            android:id="@+id/yearSpinner"
+            android:layout_width="104dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:backgroundTint="@color/white"
+            android:popupBackground="@color/brand"
+            android:contentDescription="@string/select_year" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/annual_title"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingStart="12dp"
+            android:paddingEnd="0dp" />
     </androidx.appcompat.widget.Toolbar>
-
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/barGrat"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/annualCard"
+        style="@style/Ui.Card"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="75dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="45dp"
-        app:layout_constraintBottom_toTopOf="@+id/textTotaloutflow"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </com.github.mikephil.charting.charts.BarChart>
-
-    <TextView
-        android:id="@+id/textTotalinflow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="15dp"
-        android:text="R$ 10.500,00"
-        android:textColor="#358338"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView03" />
-
-    <TextView
-        android:id="@+id/textTotaloutflow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="15dp"
-        android:text="R$ 10.500,00"
-        android:textColor="#C61616"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/textView03"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="15dp"
-        android:text="Entrada:"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="15dp"
-        android:text="Saída:"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textTotalinflow" />
-
-    <TextView
-        android:id="@+id/textView22"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="15dp"
-        android:text="Saldo:"
-        android:textColor="#000000"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textTotaloutflow" />
-
-    <TextView
-        android:id="@+id/textTotalbalance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="15dp"
-        android:text="R$10500,00"
-        android:textColor="#192363"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView22" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="12dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp">
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barGrat"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="@string/annual_title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/annualTotals"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+            <include
+                android:id="@+id/annualTotals"
+                layout="@layout/annual_totals"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

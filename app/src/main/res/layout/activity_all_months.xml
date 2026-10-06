@@ -1,61 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.features.months.MonthsActivity">
-
+    android:orientation="vertical">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarMonth"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradientcolor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="#FFFFFF">
-
-        <TextView
-            android:id="@+id/toolbar_title_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Lançamentos Mensais"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            tools:layout_editor_absoluteX="160dp"
-            tools:layout_editor_absoluteY="15dp" />
-
-        <Spinner
-            android:id="@+id/yearSpinner"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
-            android:layout_gravity="end|center_vertical"
-            android:backgroundTint="@color/white"
-            android:dropDownWidth="150dp"
-            android:popupBackground="@color/chartBlue" />
-
+        android:background="@color/brand"
+        app:contentInsetStart="8dp"
+        app:contentInsetEnd="12dp"
+        app:titleTextColor="@color/white">
         <ImageView
             android:id="@+id/backIconMonth"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            style="@style/Ui.Back"
             android:layout_gravity="start"
-            app:srcCompat="@drawable/arrow_back_24" />
-
+            app:srcCompat="@drawable/arrow_back_24"
+            android:contentDescription="@string/back" />
+        <Spinner
+            android:id="@+id/yearSpinner"
+            android:layout_width="104dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:backgroundTint="@color/white"
+            android:popupBackground="@color/brand"
+            android:contentDescription="@string/select_year" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/months_title"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingStart="12dp"
+            android:paddingEnd="0dp" />
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMonths"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarMonth" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false" />
+</LinearLayout>

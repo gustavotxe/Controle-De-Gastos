@@ -101,6 +101,9 @@
 
     <item android:title="Configurações">
         <menu>
+            <item android:id="@+id/nav_backup"
+                android:icon="@drawable/baseline_table_view_24"
+                android:title="@string/backup_title" />
 
             <item
                 android:id="@+id/nav_deleteF"
@@ -124,6 +127,3 @@
 
 
 </menu>
-
-
-      

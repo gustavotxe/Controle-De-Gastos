@@ -5,8 +5,7 @@ import java.util.Calendar
 import java.util.Locale
 
 object TransactionDate {
-    private const val DAY_MILLIS = 24L * 60 * 60 * 1000
-    private val formatter get() = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+    private val formatter get() = SimpleDateFormat("dd/MM/yyyy", Locale.forLanguageTag("pt-BR"))
 
     fun format(millis: Long): String = formatter.format(millis)
 

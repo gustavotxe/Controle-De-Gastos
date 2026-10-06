@@ -1,6 +1,8 @@
 package com.example.controledegastos.data.local.dao
 
 import kotlinx.coroutines.flow.Flow
+import android.database.Cursor
+import androidx.annotation.WorkerThread
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -9,6 +11,19 @@ import com.example.controledegastos.data.model.Items
 
 @Dao
 interface ItemsDao{
+
+    @Query("SELECT DISTINCT yearMonth / 100 FROM Items WHERE yearMonth / 100 > 0 ORDER BY yearMonth / 100 DESC")
+    fun getAvailableYears(): Flow<List<Int>>
+
+    @Query("SELECT COUNT(*) FROM Items")
+    suspend fun countItems(): Long
+
+    @WorkerThread
+    @Query("SELECT * FROM Items ORDER BY yearMonth ASC, occurredAtMillis ASC, id ASC")
+    fun getBackupCursor(): Cursor
+
+    @Query("SELECT * FROM Items ORDER BY yearMonth ASC, occurredAtMillis ASC, id ASC")
+    suspend fun getBackupSnapshot(): List<Items>
 
     @Insert
     suspend fun insertItem(items: Items)
@@ -40,7 +55,6 @@ interface ItemsDao{
     @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth ORDER BY occurredAtMillis DESC, id DESC")
     fun getMonth(yearMonth: Int): Flow<List<Items>>
 
-    //Filtro por entrada/saída de determinado mês
     @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth AND io = :flow ORDER BY occurredAtMillis DESC, id DESC")
     fun getMonthFlow(yearMonth: Int, flow: String): Flow<List<Items>>
 
@@ -50,7 +64,6 @@ interface ItemsDao{
     @Query("SELECT * FROM Items WHERE category = :category ORDER BY occurredAtMillis DESC, id DESC")
     fun getCategory(category: String): Flow<List<Items>>
 
-    //Filtro por mês e categoria
     @Query("SELECT * FROM Items WHERE yearMonth = :yearMonth AND category = :category ORDER BY occurredAtMillis DESC, id DESC")
     fun getMonthCtg(yearMonth: Int, category: String): Flow<List<Items>>
 

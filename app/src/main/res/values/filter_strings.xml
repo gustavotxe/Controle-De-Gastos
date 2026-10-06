@@ -1,0 +1,8 @@
+<resources>
+    <string name="filter_choose">Filtrar lançamentos</string>
+    <string name="filter_all">Todos os lançamentos</string>
+    <string name="filter_default_label">Filtro: Todos os lançamentos</string>
+    <string name="filter_active_label">Filtro: %1$s</string>
+    <string name="filter_accessibility">Filtro atual: %1$s. Toque para alterar.</string>
+    <string name="filter_cancel">Cancelar</string>
+</resources>

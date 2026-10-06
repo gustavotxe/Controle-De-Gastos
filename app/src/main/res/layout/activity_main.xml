@@ -1,127 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<com.example.controledegastos.ui.TapCloseDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
     android:id="@+id/drawer_layout"
-    tools:context=".ui.features.home.MainActivity">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBarLayout"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="bottom"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+            android:layout_height="match_parent"
+            android:background="@color/page">
+            <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:layout_gravity="bottom"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary"
-                android:theme="@style/ThemeOverlay.MaterialComponents.Toolbar.Primary"
-                android:background="@drawable/gradientcolor"
-                app:titleTextColor="#FFFFFF">
-
-                <TextView
-                    android:id="@+id/toolbar_title"
-                    android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/page"
+                app:elevation="0dp">
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/brand"
+                    app:contentInsetStart="8dp"
+                    app:contentInsetEnd="12dp"
+                    app:titleTextColor="@color/white"
+                    app:layout_scrollFlags="scroll|enterAlways">
+                    <Spinner
+                        android:id="@+id/yearSpinner"
+                        android:layout_width="104dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="end"
+                        android:backgroundTint="@color/white"
+                        android:popupBackground="@color/brand"
+                        android:contentDescription="@string/select_year" />
+                    <TextView
+                        android:id="@+id/totalBalanceHome"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/brand_name"
+                        android:textSize="18sp"
+                        android:textColor="@color/white"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="0dp" />
+                </androidx.appcompat.widget.Toolbar>
+                <include android:id="@+id/transactionFilterBar" layout="@layout/transaction_filter_bar" />
+            </com.google.android.material.appbar.AppBarLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="96dp"
+                    android:clipToPadding="false" />
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Saldo Total:"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:layout_marginRight="10dp"
-                    tools:layout_editor_absoluteX="160dp"
-                    tools:layout_editor_absoluteY="15dp" />
-
-                <TextView
-                    android:id="@+id/toolbarBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="R$0,00"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    tools:layout_editor_absoluteX="160dp"
-                    tools:layout_editor_absoluteY="15dp" />
-
-                <Spinner
-                    android:id="@+id/yearSpinner"
-                    android:layout_width="100dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="end|center_vertical"
-                    android:backgroundTint="@color/white"
-                    android:dropDownWidth="150dp"
-                    android:popupBackground="@color/chartBlue" />
-
-                <ImageView
-                    android:id="@+id/filter_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:paddingRight="16sp"
+                    android:orientation="vertical"
+                    android:id="@+id/emptyState"
                     android:visibility="gone"
-                    android:src="@drawable/baseline_filter">
-                </ImageView>
-
-            </androidx.appcompat.widget.Toolbar>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:padding="16dp"
+                    android:layout_gravity="top"
+                    android:layout_marginTop="8dp">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/baseline_account_balance"
+                        app:tint="@color/brand" />
+                    <TextView
+                        style="@style/Ui.Section"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/empty_title"
+                        android:gravity="center"
+                        android:layout_marginTop="16dp" />
+                    <TextView
+                        style="@style/Ui.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/empty_hint"
+                        android:gravity="center"
+                        android:textColor="@color/muted"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </FrameLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/floatingActionAddItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/baseline_add_white"
-            app:backgroundTint="#22328C"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+            android:layout_gravity="bottom|end"
+            android:layout_margin="20dp"
+            android:text="@string/new_transaction"
+            android:contentDescription="@string/new_transaction"
+            android:textColor="@color/white"
+            app:icon="@drawable/baseline_add_white"
+            app:iconTint="@color/white"
+            app:backgroundTint="@color/brand" />
+    </FrameLayout>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/nav_header"
+        android:background="@color/surface"
         android:fitsSystemWindows="true"
-        app:drawerLayoutCornerSize="0dp"
-        android:background="@color/white"
-        app:itemTextColor="@color/black"
-        app:menu="@menu/nav_menu">
-
-    </com.google.android.material.navigation.NavigationView>
-
-</androidx.drawerlayout.widget.DrawerLayout>
-
-
-
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu"
+        app:drawerLayoutCornerSize="24dp"
+        app:itemIconTint="@color/brand"
+        app:itemTextColor="@color/ink"
+        app:itemVerticalPadding="6dp"
+        app:itemMaxLines="2" />
+</com.example.controledegastos.ui.TapCloseDrawerLayout>

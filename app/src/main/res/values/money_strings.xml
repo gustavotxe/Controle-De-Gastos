@@ -1,0 +1,4 @@
+<resources>
+    <string name="amount_invalid_brl">Informe um valor maior que zero em reais. Ex.: 7.000,00. Use vírgula para centavos e ponto apenas para milhares.</string>
+    <string name="amount_format_hint">Ex.: 7.000,00 — ponto para milhares e vírgula para centavos.</string>
+</resources>

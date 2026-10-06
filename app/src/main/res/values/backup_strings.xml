@@ -1,0 +1,19 @@
+<resources>
+    <string name="backup_title">Backup</string>
+    <string name="backup_description">Salve ou importe os lançamentos de todos os anos em um arquivo JSON.</string>
+    <string name="backup_export_heading">Exportar todos os anos</string>
+    <string name="backup_export_description">Crie uma cópia organizada por ano, mês e data, com todos os detalhes dos seus lançamentos.</string>
+    <string name="backup_export">Criar Backup</string>
+    <string name="backup_import_heading">Importar lançamentos</string>
+    <string name="backup_import_description">Selecione um JSON exportado pelo app. Os dados atuais serão mantidos e os lançamentos que faltam serão adicionados. Importar novamente o mesmo arquivo não cria duplicatas.</string>
+    <string name="backup_import">Importar Backup</string>
+    <string name="backup_ready">Escolha uma opção para começar. Mantenha esta tela aberta até a conclusão.</string>
+    <string name="backup_exporting">Salvando todos os lançamentos…</string>
+    <string name="backup_importing">Validando e importando lançamentos…</string>
+    <string name="backup_exported">Arquivo salvo. Lançamentos exportados: %1$d.</string>
+    <string name="backup_imported">Importação concluída. Adicionados: %1$d. Já existentes: %2$d.</string>
+    <string name="backup_invalid">Arquivo inválido ou incompatível. Use o JSON exportado pelo app, com até 100 mil lançamentos e 50 MB. Nenhum lançamento foi alterado.</string>
+    <string name="backup_export_limit">Não foi possível gerar o backup: há dados incompatíveis ou o limite de 100 mil lançamentos e 50 MB foi excedido.</string>
+    <string name="backup_import_failed">Não foi possível importar o arquivo. Verifique o acesso ao arquivo e o espaço disponível. Nenhum lançamento foi alterado.</string>
+    <string name="backup_export_failed">Não foi possível concluir a exportação. Verifique o destino e o espaço disponível e tente novamente. Um arquivo incompleto pode ter sido criado.</string>
+</resources>
