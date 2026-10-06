@@ -1,4 +1,5 @@
 # Builds e caches do Gradle / Kotlin
+build/
 .gradle/
 .kotlin/
 out/

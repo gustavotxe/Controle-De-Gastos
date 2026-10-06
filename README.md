@@ -75,8 +75,37 @@ Nesta aplicação o usuário é capaz de registrar todas as suas entradas e saí
 
 ## Testes
 
-Consulte [o guia de testes](docs/TESTING.md) para executar as suítes locais e
-instrumentadas, entender o isolamento e verificar a migração do banco.
+Execute os comandos abaixo na pasta raiz do repositório. No Windows (PowerShell):
+
+```powershell
+# Compilar o APK debug
+.\gradlew.bat :app:assembleDebug
+
+# Instalar em um emulador ou dispositivo conectado
+.\gradlew.bat :app:installDebug
+```
+
+No Linux/macOS, substitua `.\gradlew.bat` por `./gradlew`. Se necessário, conceda permissão de execução com `chmod +x gradlew`.
+
+### Testes unitários locais
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest
+```
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest --tests "com.example.controledegastos.MoneyTest"
+```
+
+### Testes instrumentados e de interface
+
+```powershell
+.\gradlew.bat :app:connectedDebugAndroidTest
+```
+
+```powershell
+.\gradlew.bat :app:connectedDebugAndroidTest -PtestOrchestrator=true
+```
 
 ## 📫 Contato
 
