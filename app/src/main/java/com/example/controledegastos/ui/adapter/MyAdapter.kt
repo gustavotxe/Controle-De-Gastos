@@ -9,7 +9,8 @@ import com.example.controledegastos.listeners.OnClickInterface
 import com.example.controledegastos.R
 import com.example.controledegastos.data.model.Items
 import com.example.controledegastos.databinding.AdapterlayoutBinding
-import java.text.NumberFormat
+import com.example.controledegastos.ui.model.Money
+import com.example.controledegastos.ui.model.TransactionDate
 
 class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<MyAdapter.Mvh>() {
 
@@ -44,8 +45,8 @@ class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<
         holder.obs.text = model.observation
         holder.iOtext.text = model.io
         holder.payMethod.text = model.paymentMethod
-        holder.data.text = model.date
-        holder.month.text = model.monthNumber
+        holder.data.text = TransactionDate.format(model.occurredAtMillis)
+        holder.month.text = model.yearMonth.toString()
         holder.ctg.text = model.category
 
         holder.iOtext.setTextColor(
@@ -53,11 +54,11 @@ class MyAdapter(val listenerInterface: OnClickInterface) : RecyclerView.Adapter<
             else Color.parseColor("#960802")
         )
 
-        val value = NumberFormat.getCurrencyInstance().format(model.value)
+        val value = Money.format(model.amountCents)
         holder.value.text = value
 
         holder.value.setTextColor(
-            if (value.contains("-")) Color.parseColor("#ed1313")
+            if (model.amountCents < 0) Color.parseColor("#ed1313")
             else Color.parseColor("#1ff024")
         )
 

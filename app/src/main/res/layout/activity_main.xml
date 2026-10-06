@@ -55,13 +55,22 @@
                     tools:layout_editor_absoluteX="160dp"
                     tools:layout_editor_absoluteY="15dp" />
 
+                <Spinner
+                    android:id="@+id/yearSpinner"
+                    android:layout_width="100dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:backgroundTint="@color/white"
+                    android:dropDownWidth="150dp"
+                    android:popupBackground="@color/chartBlue" />
+
                 <ImageView
                     android:id="@+id/filter_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:paddingRight="16sp"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     android:src="@drawable/baseline_filter">
                 </ImageView>
 

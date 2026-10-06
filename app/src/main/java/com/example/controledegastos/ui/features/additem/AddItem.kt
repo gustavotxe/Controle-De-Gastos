@@ -1,281 +1,158 @@
 package com.example.controledegastos.ui.features.additem
 
 import android.app.DatePickerDialog
-import android.content.DialogInterface
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.example.controledegastos.data.model.CategoryType
 import com.example.controledegastos.data.model.FlowType
 import com.example.controledegastos.data.model.Items
 import com.example.controledegastos.databinding.ActivityAddItemBinding
+import com.example.controledegastos.ui.model.Money
+import com.example.controledegastos.ui.model.TransactionDate
 import com.example.controledegastos.viewmodel.ItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 @AndroidEntryPoint
 class AddItem : AppCompatActivity() {
-
     private lateinit var binding: ActivityAddItemBinding
-    private var noteId: Int = 1
-    lateinit var IOfinalValue: String
-    lateinit var noteIOtext: String
-    private lateinit var type: String
-    private lateinit var descNote: String
-    private lateinit var obsNote: String
-    private lateinit var notedate: String
-    private lateinit var datevalue: String
-    private lateinit var noteValue: String
-    private lateinit var noteIO: String
-    private lateinit var payMethod: String
-    private lateinit var ctg: String
-    private var cal = Calendar.getInstance()
-
-    private val itemsViewModel: ItemsViewModel by viewModels()
+    private val viewModel: ItemsViewModel by viewModels()
+    private val calendar = Calendar.getInstance()
+    private var editingId: Int? = null
+    private var dateSelected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        type = intent.getStringExtra("type").toString()
-
-        if (type == "Update") {
-
-            noteId = intent.getIntExtra("id", -1)
-            descNote = intent.getStringExtra("desc").toString()
-            obsNote = intent.getStringExtra("obs").toString()
-            notedate = intent.getStringExtra("data").toString()
-            noteValue = intent.getStringExtra("valor").toString()
-            noteIO = intent.getStringExtra("io").toString()
-            ctg = intent.getStringExtra("ctg").toString()
-            datevalue = intent.getStringExtra("datevalue").toString()
-            payMethod = intent.getStringExtra("pay").toString()
-
-            binding.DescId.setText(descNote)
-            binding.ObsId.setText(obsNote)
-            binding.textDateSelected.setText(notedate)
-            binding.saveNote.setText("EDITAR")
-            binding.textViewValor.setText("Valor anterior: $noteValue")
-            binding.textViewCategory.setText("Categoria anterior: $ctg")
-            binding.editValue.hint = "Digite um novo valor..."
-            binding.textViewPay.setText("Método de pagamento anterior: $payMethod")
-            binding.textViewDate.setText("Data anterior: $datevalue \n       Clique para editar:")
-
-            if (noteIO == FlowType.OUTFLOW.value) {
-                noteIOtext = FlowType.OUTFLOW.value
-                binding.textViewFlowEdit.setTextColor(Color.RED)
-                binding.spinnerIO.setSelection(1)
-            } else {
-                noteIOtext = FlowType.INFLOW.value
-                binding.textViewFlowEdit.setTextColor(Color.GREEN)
-            }
-
-            binding.textViewFlowEdit.setText("Valor anterior: $noteIOtext")
-            binding.buttonCancel.visibility = View.VISIBLE
-            binding.buttonCancel.setOnClickListener { onBackPressed() }
-
-        }
-
-        val IOarray = FlowType.entries.map { it.value }.toTypedArray()
-        var IOSelected: String? = IOarray.first()
-
-        binding.spinnerIO.adapter = ArrayAdapter(this,
-            android.R.layout.simple_list_item_1, IOarray)
-
-        binding.spinnerIO.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-
-                IOSelected = IOarray[position]
-
-                if (IOSelected == FlowType.INFLOW.value) {
-                    binding.textViewIO.setText(FlowType.INFLOW.value)
-                    binding.textViewIO.setTextColor(Color.GREEN)
-                } else {
-                    binding.textViewIO.setText(FlowType.OUTFLOW.value)
-                    binding.textViewIO.setTextColor(Color.RED)
-                }
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-
-        }
-
-        val paymentArray = arrayOf("Pagamento á vista", "Pagamento á prazo")
-        var paymentSelected: String? = paymentArray.first()
-
-        binding.spinnerPayment.adapter = ArrayAdapter(this,
-            android.R.layout.simple_list_item_1, paymentArray)
-
-        binding.spinnerPayment.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-
-                paymentSelected = paymentArray[position]
-
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-
-        }
-
-        val categoryArray = CategoryType.valuesList.toTypedArray()
-        var categorySelected: String? = categoryArray.first()
-
-        binding.spinnerCategory.adapter = ArrayAdapter(this,
-            android.R.layout.simple_list_item_1, categoryArray)
-        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-
-                categorySelected = categoryArray[position]
-
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-
-        }
-
-        openDatePicker()
-
-        binding.saveNote.setOnClickListener {
-
-            val desc = binding.DescId.text.toString()
-            val obs = binding.ObsId.text.toString()
-            val value = binding.editValue.text.toString().replace(",", ".")
-
-            if (TextUtils.isEmpty(value)) {
-                Toast.makeText(this, "Insira um valor válido...", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (binding.textDateSelected.text == "--/--/----") {
-                Toast.makeText(this, "Insira uma data válida...", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val finalValue = parseSignedValue(value.toDouble(), IOSelected.orEmpty())
-
-            if (type == "Add") {
-                saveItem(
-                    itemId = 0,
-                    desc = desc,
-                    obs = obs,
-                    io = IOSelected.orEmpty(),
-                    payment = paymentSelected.orEmpty(),
-                    value = finalValue,
-                    category = categorySelected.orEmpty()
-                )
-                finish()
-
-            } else {
-
-                val alertDialog = AlertDialog.Builder(this)
-
-                alertDialog.apply {
-
-                    setTitle("Editar Item")
-                    setMessage("Deseja confirmar todas as alterações?")
-
-                    setPositiveButton("Sim") { dialogInterface: DialogInterface?, p3: Int ->
-                        saveItem(
-                            itemId = noteId,
-                            desc = desc,
-                            obs = obs,
-                            io = IOSelected.orEmpty(),
-                            payment = paymentSelected.orEmpty(),
-                            value = finalValue,
-                            category = categorySelected.orEmpty()
-                        )
-                        finish()
-                    }
-                    setNegativeButton("Não") { p1, p2 ->
-                        Toast.makeText(context, "Cancelado", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                }.create().show()
-            }
-        }
-
-        binding.backIcon.setOnClickListener {
-            onBackPressed()
-        }
+        setupSpinners()
+        restoreEditingItem(savedInstanceState)
+        setupDatePicker()
+        binding.saveNote.setOnClickListener { save() }
+        binding.buttonCancel.setOnClickListener { finish() }
+        binding.backIcon.setOnClickListener { finish() }
     }
 
-    private fun parseSignedValue(input: Double, selectedFlow: String): Double {
-        return if (selectedFlow == FlowType.OUTFLOW.value) -input else input
+    private fun setupSpinners() {
+        binding.spinnerIO.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, FlowType.entries.map { it.value })
+        binding.spinnerPayment.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, PAYMENT_METHODS)
+        binding.spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, CategoryType.valuesList)
     }
 
-    private fun saveItem(
-        itemId: Int,
-        desc: String,
-        obs: String,
-        io: String,
-        payment: String,
-        value: Double,
-        category: String
-    ) {
-        IOfinalValue = if (io == FlowType.INFLOW.value) FlowType.INFLOW.value else FlowType.OUTFLOW.value
+    private fun restoreEditingItem(savedState: Bundle?) {
+        editingId = savedState?.getInt(STATE_ID)?.takeIf { it > 0 } ?: intent.getIntExtra(EXTRA_ID, -1).takeIf { it > 0 }
+        val dateMillis = savedState?.getLong(STATE_DATE) ?: intent.getLongExtra(EXTRA_DATE, 0L)
+        dateSelected = savedState?.getBoolean(STATE_DATE_SELECTED) ?: (dateMillis > 0)
+        if (dateSelected) calendar.timeInMillis = dateMillis
+        binding.DescId.setText(savedState?.getString(STATE_DESCRIPTION) ?: intent.getStringExtra(EXTRA_DESCRIPTION).orEmpty())
+        binding.ObsId.setText(savedState?.getString(STATE_OBSERVATION) ?: intent.getStringExtra(EXTRA_OBSERVATION).orEmpty())
+        binding.editValue.setText(savedState?.getString(STATE_AMOUNT) ?: editingAmount())
+        select(binding.spinnerIO, savedState?.getString(STATE_FLOW) ?: intent.getStringExtra(EXTRA_FLOW).orEmpty())
+        select(binding.spinnerPayment, savedState?.getString(STATE_PAYMENT) ?: intent.getStringExtra(EXTRA_PAYMENT).orEmpty())
+        select(binding.spinnerCategory, savedState?.getString(STATE_CATEGORY) ?: intent.getStringExtra(EXTRA_CATEGORY).orEmpty())
+        if (dateSelected) updateDate()
+        if (editingId == null) return
 
-        val model = Items(
-            itemId,
-            desc,
-            obs,
-            IOfinalValue,
-            payment,
-            value,
-            date = binding.textDateSelected.text.toString(),
-            cal.get(Calendar.MONTH).toString(),
-            category
+        binding.saveNote.text = "EDITAR"
+        binding.buttonCancel.visibility = View.VISIBLE
+    }
+
+    private fun editingAmount(): String =
+        (intent.getLongExtra(EXTRA_AMOUNT_CENTS, 0L) / 100.0).toString().replace('.', ',')
+
+    private fun select(spinner: android.widget.Spinner, value: String) {
+        val position = (0 until spinner.count).firstOrNull { spinner.getItemAtPosition(it) == value } ?: -1
+        if (position >= 0) spinner.setSelection(position)
+    }
+
+    private fun setupDatePicker() {
+        val listener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
+            calendar.set(year, month, day)
+            dateSelected = true
+            updateDate()
+        }
+        val showPicker = {
+            DatePickerDialog(this, listener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+        }
+        binding.textViewDate.setOnClickListener { showPicker() }
+        binding.textDateSelected.setOnClickListener { showPicker() }
+    }
+
+    private fun updateDate() { binding.textDateSelected.text = TransactionDate.format(TransactionDate.atStartOfSelectedDay(calendar)) }
+
+    private fun save() {
+        val amount = Money.parseToCents(binding.editValue.text.toString())
+        if (amount == null || amount <= 0) return showError("Insira um valor válido.")
+        if (binding.textDateSelected.text == "--/--/----") return showError("Insira uma data válida.")
+        val flow = binding.spinnerIO.selectedItem.toString()
+        val signedAmount = if (flow == FlowType.OUTFLOW.value) -amount else amount
+        val dateMillis = TransactionDate.atStartOfSelectedDay(calendar)
+        val item = Items(
+            id = editingId ?: 0,
+            description = binding.DescId.text.toString().trim(),
+            observation = binding.ObsId.text.toString().trim(),
+            io = flow,
+            paymentMethod = binding.spinnerPayment.selectedItem.toString(),
+            amountCents = signedAmount,
+            occurredAtMillis = dateMillis,
+            yearMonth = TransactionDate.yearMonth(dateMillis),
+            category = binding.spinnerCategory.selectedItem.toString()
         )
-
-        if (type == "Add") {
-            itemsViewModel.insertItem(model)
-        } else {
-            itemsViewModel.updateItem(model)
-        }
+        if (editingId == null) viewModel.insertItem(item) else viewModel.updateItem(item)
+        finish()
     }
 
-    fun openDatePicker() {
-        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-            cal.set(Calendar.YEAR, year)
-            cal.set(Calendar.MONTH, monthOfYear)
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            updateDateInView()
-        }
+    private fun showError(message: String) { Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
 
-        binding.textViewDate.setOnClickListener {
-            DatePickerDialog(
-                this@AddItem,
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-
-        binding.textDateSelected.setOnClickListener {
-            DatePickerDialog(
-                this@AddItem,
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(STATE_ID, editingId ?: -1)
+        outState.putLong(STATE_DATE, TransactionDate.atStartOfSelectedDay(calendar))
+        outState.putBoolean(STATE_DATE_SELECTED, dateSelected)
+        outState.putString(STATE_DESCRIPTION, binding.DescId.text.toString())
+        outState.putString(STATE_OBSERVATION, binding.ObsId.text.toString())
+        outState.putString(STATE_AMOUNT, binding.editValue.text.toString())
+        outState.putString(STATE_FLOW, binding.spinnerIO.selectedItem.toString())
+        outState.putString(STATE_PAYMENT, binding.spinnerPayment.selectedItem.toString())
+        outState.putString(STATE_CATEGORY, binding.spinnerCategory.selectedItem.toString())
+        super.onSaveInstanceState(outState)
     }
 
-    private fun updateDateInView() {
-        val myFormat = "dd/MM/yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale("pt", "BR"))
-        binding.textDateSelected.text = sdf.format(cal.time)
-    }
+    companion object {
+        private const val EXTRA_ID = "item_id"
+        private const val EXTRA_DESCRIPTION = "description"
+        private const val EXTRA_OBSERVATION = "observation"
+        private const val EXTRA_FLOW = "flow"
+        private const val EXTRA_PAYMENT = "payment"
+        private const val EXTRA_AMOUNT_CENTS = "amount_cents"
+        private const val EXTRA_DATE = "date"
+        private const val EXTRA_CATEGORY = "category"
+        private const val STATE_ID = "state_id"
+        private const val STATE_DATE = "state_date"
+        private const val STATE_DATE_SELECTED = "state_date_selected"
+        private const val STATE_DESCRIPTION = "state_description"
+        private const val STATE_OBSERVATION = "state_observation"
+        private const val STATE_AMOUNT = "state_amount"
+        private const val STATE_FLOW = "state_flow"
+        private const val STATE_PAYMENT = "state_payment"
+        private const val STATE_CATEGORY = "state_category"
+        private val PAYMENT_METHODS = listOf("Pagamento à vista", "Pagamento a prazo")
 
+        fun newIntent(context: Context, item: Items? = null): Intent = Intent(context, AddItem::class.java).apply {
+            item ?: return@apply
+            putExtra(EXTRA_ID, item.id)
+            putExtra(EXTRA_DESCRIPTION, item.description)
+            putExtra(EXTRA_OBSERVATION, item.observation)
+            putExtra(EXTRA_FLOW, item.io)
+            putExtra(EXTRA_PAYMENT, item.paymentMethod)
+            putExtra(EXTRA_AMOUNT_CENTS, kotlin.math.abs(item.amountCents))
+            putExtra(EXTRA_DATE, item.occurredAtMillis)
+            putExtra(EXTRA_CATEGORY, item.category)
+        }
+    }
 }

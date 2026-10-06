@@ -3,9 +3,6 @@ package com.example.controledegastos.data.local.database
 import android.content.Context
 import androidx.room.Room
 import com.example.controledegastos.data.local.dao.ItemsDao
-import com.example.controledegastos.data.local.dao.ItemsDaoSum
-import com.example.controledegastos.data.repository.ItemsSumRepository
-import com.example.controledegastos.data.usecase.MonthTotalValue
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +20,8 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context.applicationContext,
             AppDatabase::class.java,
-            "app_database").fallbackToDestructiveMigration()
+            "app_database")
+            .addMigrations(AppDatabaseMigrations.MIGRATION_2_3)
             .build()
 
     }
@@ -33,15 +31,5 @@ object DatabaseModule {
         return database.getItemsDao()
     }
 
-    @Provides
-    fun provideItemsDaoSum(database: AppDatabase): ItemsDaoSum {
-        return database.getItemsDaoSum()
-    }
-
-    @Provides
-    @Singleton
-    fun provideMonthTotalValue(itemsSumRepository: ItemsSumRepository): MonthTotalValue {
-        return MonthTotalValue(itemsSumRepository)
-    }
 }
 

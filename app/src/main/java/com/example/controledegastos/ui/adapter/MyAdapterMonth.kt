@@ -40,21 +40,36 @@ class MyAdapterMonth(
         holder.balance.text = monthSummary.balanceText
         holder.month.text = monthSummary.monthName
 
-        val entries = arrayListOf(
-            PieEntry(monthSummary.inflowPie, "Entrada"),
-            PieEntry(monthSummary.outflowPie, "Saída")
-        )
-
-        val pieDataSet = PieDataSet(entries, "").apply {
-            setColors(Color.parseColor("#4CAF50"), Color.parseColor("#DF4646"))
+        val pieDataSet = if (monthSummary.hasData) {
+            PieDataSet(
+                arrayListOf(
+                    PieEntry(monthSummary.inflowPie, "Entrada"),
+                    PieEntry(monthSummary.outflowPie, "Saída")
+                ),
+                ""
+            ).apply {
+                setColors(Color.parseColor("#4CAF50"), Color.parseColor("#DF4646"))
+            }
+        } else {
+            PieDataSet(arrayListOf(PieEntry(1f, "Sem dados")), "").apply {
+                setColor(Color.parseColor("#D1D5DB"))
+            }
+        }.apply {
             valueTextSize = 1f
             valueTextColor = Color.WHITE
         }
 
-        holder.pieChart.data = PieData(pieDataSet)
-        holder.pieChart.description.isEnabled = false
-        holder.pieChart.animateY(1000)
-        holder.pieChart.invalidate()
+        holder.pieChart.apply {
+            data = PieData(pieDataSet)
+            description.isEnabled = false
+            isDrawHoleEnabled = true
+            centerText = if (monthSummary.hasData) "" else "Sem dados"
+            setCenterTextSize(11f)
+            setCenterTextColor(Color.parseColor("#6B7280"))
+            legend.isEnabled = false
+            animateY(600)
+            invalidate()
+        }
 
         holder.itemView.setOnClickListener { onMonthClicked(monthSummary) }
     }

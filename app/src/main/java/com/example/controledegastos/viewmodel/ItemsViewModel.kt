@@ -1,191 +1,127 @@
 package com.example.controledegastos.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.controledegastos.data.model.FlowType
 import com.example.controledegastos.data.model.Items
-import com.example.controledegastos.data.repository.ItemsRepository
-import com.example.controledegastos.data.repository.ItemsSumRepository
+import com.example.controledegastos.data.repository.ItemsDataSource
+import com.example.controledegastos.data.repository.YearSelectionRepository
+import com.example.controledegastos.ui.model.Money
 import dagger.hilt.android.lifecycle.HiltViewModel
-import androidx.lifecycle.switchMap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.NumberFormat
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+data class TransactionsUiState(
+    val items: List<Items> = emptyList(),
+    val balance: String = Money.format(0),
+    val inflow: String = Money.format(0),
+    val outflow: String = Money.format(0)
+)
+
+data class AnnualChartUiState(
+    val inflowCents: Long = 0,
+    val outflowCents: Long = 0,
+    val balanceCents: Long = 0
+) {
+    val inflowText get() = Money.format(inflowCents)
+    val outflowText get() = Money.format(outflowCents)
+    val balanceText get() = Money.format(balanceCents)
+}
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class ItemsViewModel @Inject constructor(
-    private val itemsRepository: ItemsRepository,
-    private val itemsSumRepository: ItemsSumRepository
+    private val itemsRepository: ItemsDataSource,
+    private val yearSelectionRepository: YearSelectionRepository
 ) : ViewModel() {
 
-    data class TotalsUiState(
-        val inflow: String = NumberFormat.getCurrencyInstance().format(0.0),
-        val outflow: String = NumberFormat.getCurrencyInstance().format(0.0),
-        val balance: String = NumberFormat.getCurrencyInstance().format(0.0)
-    )
-
-    data class AnnualChartUiState(
-        val inflow: Double,
-        val outflow: Double,
-        val balance: Double,
-        val inflowText: String,
-        val outflowText: String,
-        val balanceText: String
-    )
-
-    private sealed class MainFilter {
-        data object All : MainFilter()
-        data class Flow(val flow: String) : MainFilter()
-        data class Category(val category: String) : MainFilter()
+    private sealed interface MainFilter {
+        data object All : MainFilter
+        data class Flow(val value: String) : MainFilter
+        data class Category(val value: String) : MainFilter
     }
 
     private data class MonthFilter(
-        val month: String,
+        val yearMonth: Int,
         val category: String? = null,
         val flow: String? = null
     )
 
-    private val mMainFilter = MutableLiveData<MainFilter>(MainFilter.All)
-    private val mMonthFilter = MutableLiveData<MonthFilter>()
+    private val mainFilter = MutableStateFlow<MainFilter>(MainFilter.All)
+    private val monthFilter = MutableStateFlow<MonthFilter?>(null)
 
-    val mainItems: LiveData<List<Items>> = mMainFilter.switchMap { filter ->
-        when (filter) {
-            MainFilter.All -> itemsRepository.allItems
-            is MainFilter.Flow -> itemsRepository.getIOFiltered(filter.flow)
-            is MainFilter.Category -> itemsRepository.getCategory(filter.category)
+    val availableYears = yearSelectionRepository.availableYears
+    val selectedYear = yearSelectionRepository.selectedYear
+
+    val mainUiState: StateFlow<TransactionsUiState> = mainFilter
+        .combine(selectedYear) { filter, year -> filter to year }
+        .flatMapLatest { (filter, year) -> filter.toItemsFlow(year) }
+        .map { it.toUiState() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
+
+    val monthUiState: StateFlow<TransactionsUiState> = monthFilter
+        .combine(selectedYear) { filter, year -> filter?.copy(yearMonth = year * 100 + (filter.yearMonth % 100)) }
+        .flatMapLatest { filter -> filter?.toItemsFlow() ?: flowOf(emptyList()) }
+        .map { it.toUiState() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransactionsUiState())
+
+    val annualChartState: StateFlow<AnnualChartUiState> = selectedYear
+        .flatMapLatest { year -> itemsRepository.getYear(year) }
+        .map { items ->
+            val inflow = items.filter { it.io == FlowType.INFLOW.value }.sumOf { it.amountCents }
+            val outflow = items.filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
+            AnnualChartUiState(inflow, outflow, inflow + outflow)
         }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnnualChartUiState())
+
+    fun applyMainAllFilter() { mainFilter.value = MainFilter.All }
+    fun applyMainFlowFilter(flow: String) { mainFilter.value = MainFilter.Flow(flow) }
+    fun applyMainCategoryFilter(category: String) { mainFilter.value = MainFilter.Category(category) }
+    fun selectYear(year: Int) = yearSelectionRepository.selectYear(year)
+
+    fun applyMonthFilter(yearMonth: Int, category: String? = null, flow: String? = null) {
+        monthFilter.value = MonthFilter(yearMonth, category, flow)
     }
 
-    val monthItems: LiveData<List<Items>> = mMonthFilter.switchMap { filter ->
-        when {
-            filter.flow != null -> itemsRepository.getMonthFlow(filter.month, filter.flow)
-            filter.category != null -> itemsRepository.getMonthCtg(filter.month, filter.category)
-            else -> itemsRepository.getMonth(filter.month)
-        }
+    fun insertItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.insertItem(item) }
+    fun updateItem(item: Items) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.updateItem(item) }
+    fun deleteItem(id: Int) = viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItem(id) }
+    fun deleteItemMonth(yearMonth: Int) {
+        val selectedYearMonth = selectedYear.value * 100 + (yearMonth % 100)
+        viewModelScope.launch(Dispatchers.IO) { itemsRepository.deleteItemMonth(selectedYearMonth) }
     }
 
-    private val mNumberFormatBalance = MutableLiveData<String>()
-    val numberBalance: LiveData<String> get() = mNumberFormatBalance
-
-    private val mMonthTotals = MutableLiveData<TotalsUiState>()
-    val monthTotals: LiveData<TotalsUiState> get() = mMonthTotals
-
-    private val mAnnualChartState = MutableLiveData<AnnualChartUiState>()
-    val annualChartState: LiveData<AnnualChartUiState> get() = mAnnualChartState
-
-    fun insertItem(items: Items) = viewModelScope.launch(Dispatchers.IO) {
-        itemsRepository.insertItem(items)
+    private fun MainFilter.toItemsFlow(year: Int): Flow<List<Items>> = when (this) {
+        MainFilter.All -> itemsRepository.getYear(year)
+        is MainFilter.Flow -> itemsRepository.getYearFlow(year, value)
+        is MainFilter.Category -> itemsRepository.getYearCategory(year, value)
     }
 
-    fun updateItem(items: Items) = viewModelScope.launch(Dispatchers.IO) {
-        itemsRepository.updateItem(items)
+    private fun MonthFilter.toItemsFlow(): Flow<List<Items>> = when {
+        flow != null -> itemsRepository.getMonthFlow(yearMonth, flow)
+        category != null -> itemsRepository.getMonthCtg(yearMonth, category)
+        else -> itemsRepository.getMonth(yearMonth)
     }
 
-    fun deleteItem(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        itemsRepository.deleteItem(id)
-    }
-
-    fun deleteItemMonth(monthNumber: String) = viewModelScope.launch(Dispatchers.IO) {
-        itemsRepository.deleteItemMonth(monthNumber)
-    }
-
-    fun applyMainAllFilter() {
-        mMainFilter.value = MainFilter.All
-        refreshMainBalance()
-    }
-
-    fun applyMainFlowFilter(flow: String) {
-        mMainFilter.value = MainFilter.Flow(flow)
-        refreshMainBalance()
-    }
-
-    fun applyMainCategoryFilter(category: String) {
-        mMainFilter.value = MainFilter.Category(category)
-        refreshMainBalance()
-    }
-
-    fun applyMonthFilter(month: String, category: String? = null, flow: String? = null) {
-        mMonthFilter.value = MonthFilter(month, category, flow)
-        refreshMonthTotals(month, category, flow)
-    }
-
-    fun refreshMainBalance() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val value = when (val filter = mMainFilter.value ?: MainFilter.All) {
-                MainFilter.All -> itemsSumRepository.getSumValue()
-                is MainFilter.Flow -> itemsSumRepository.getSumTotalFlowValue(filter.flow)
-                is MainFilter.Category -> itemsSumRepository.getSumValueCtg(filter.category)
-            }
-            mNumberFormatBalance.postValue(NumberFormat.getCurrencyInstance().format(value))
-        }
-    }
-
-    fun loadAnnualChartData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val totalBalance = itemsSumRepository.getSumValue()
-            val totalOutflowAbs = kotlin.math.abs(itemsSumRepository.getSumTotalFlowValue(FlowType.OUTFLOW.value))
-            val inflow = totalBalance - (-totalOutflowAbs)
-
-            mAnnualChartState.postValue(
-                AnnualChartUiState(
-                    inflow = inflow,
-                    outflow = -totalOutflowAbs,
-                    balance = totalBalance,
-                    inflowText = NumberFormat.getCurrencyInstance().format(inflow),
-                    outflowText = NumberFormat.getCurrencyInstance().format(-totalOutflowAbs),
-                    balanceText = NumberFormat.getCurrencyInstance().format(totalBalance)
-                )
-            )
-        }
-    }
-
-    fun refreshMonthTotals(month: String, category: String? = null, flow: String? = null) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val totals = when {
-                flow != null -> {
-                    val totalOutflow = itemsSumRepository.getSumFlowValue(month, flow)
-                    if (flow == FlowType.INFLOW.value) {
-                        TotalsUiState(
-                            inflow = NumberFormat.getCurrencyInstance().format(totalOutflow),
-                            outflow = NumberFormat.getCurrencyInstance().format(0.0),
-                            balance = NumberFormat.getCurrencyInstance().format(0.0)
-                        )
-                    } else {
-                        TotalsUiState(
-                            inflow = NumberFormat.getCurrencyInstance().format(0.0),
-                            outflow = NumberFormat.getCurrencyInstance().format(totalOutflow),
-                            balance = NumberFormat.getCurrencyInstance().format(0.0)
-                        )
-                    }
-                }
-
-                category != null -> {
-                    val totalBalance = itemsSumRepository.getSumMonthValueCtg(month, category)
-                    val totalOutflow = itemsSumRepository.getSumOutflowValueCtg(month, FlowType.OUTFLOW.value, category)
-                    val inflow = totalBalance - totalOutflow
-                    TotalsUiState(
-                        inflow = NumberFormat.getCurrencyInstance().format(inflow),
-                        outflow = NumberFormat.getCurrencyInstance().format(totalOutflow),
-                        balance = NumberFormat.getCurrencyInstance().format(totalBalance)
-                    )
-                }
-
-                else -> {
-                    val totalBalance = itemsSumRepository.getSumMonthValue(month)
-                    val totalOutflow = itemsSumRepository.getSumFlowValue(month, FlowType.OUTFLOW.value)
-                    val inflow = totalBalance - totalOutflow
-                    TotalsUiState(
-                        inflow = NumberFormat.getCurrencyInstance().format(inflow),
-                        outflow = NumberFormat.getCurrencyInstance().format(totalOutflow),
-                        balance = NumberFormat.getCurrencyInstance().format(totalBalance)
-                    )
-                }
-            }
-
-            mMonthTotals.postValue(totals)
-        }
+    private fun List<Items>.toUiState(): TransactionsUiState {
+        val inflow = filter { it.io == FlowType.INFLOW.value }.sumOf { it.amountCents }
+        val outflow = filter { it.io == FlowType.OUTFLOW.value }.sumOf { it.amountCents }
+        return TransactionsUiState(
+            items = this,
+            balance = Money.format(inflow + outflow),
+            inflow = Money.format(inflow),
+            outflow = Money.format(outflow)
+        )
     }
 }

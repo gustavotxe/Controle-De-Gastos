@@ -3,7 +3,7 @@ package com.example.controledegastos.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "Items")
 data class Items(
 
     @PrimaryKey(autoGenerate = true)
@@ -11,10 +11,13 @@ data class Items(
 
     val description: String,
     val observation: String,
-    val io: String? = null,
-    val paymentMethod: String? = null,
-    val value: Double,
-    val date: String,
-    val monthNumber: String? = null,
-    val category: String? = null
+    val io: String,
+    val paymentMethod: String,
+    /** Signed amount in cents. Using an integer avoids floating-point rounding errors. */
+    val amountCents: Long,
+    /** Instant selected by the user, in UTC milliseconds. */
+    val occurredAtMillis: Long,
+    /** YYYYMM, stored to keep month/year filtering and indexing simple. */
+    val yearMonth: Int,
+    val category: String
 )

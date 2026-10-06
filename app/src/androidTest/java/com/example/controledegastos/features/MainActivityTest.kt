@@ -129,19 +129,13 @@ class MainActivityTest {
 
         val items = listOf(
             Items(1, "descrição", "observação", "Entrada",
-                "Pagamento á vista", 150.0,
-                "10/02/2025",
-                "1", "Transporte"),
+                "Pagamento à vista", 15_000, 1_739_145_600_000, 202502, "Transporte"),
 
             Items(2, "descrição 2", "observação 2", "Saída",
-                "Pagamento á vista", 300.0,
-                "20/02/2025",
-                "1", null),
+                "Pagamento à vista", -30_000, 1_740_009_600_000, 202502, "Outros"),
 
             Items(3, "descrição 3", "observação 3", "Entrada",
-                "Pagamento á vista", 25.0,
-                "15/03/2025",
-                "2", "Saúde")
+                "Pagamento à vista", 2_500, 1_742_083_200_000, 202503, "Saúde")
         )
 
         runBlocking {
